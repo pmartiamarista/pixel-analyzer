@@ -4,8 +4,12 @@ version     = "0.1.2"
 edition     = "2024"
 description = "High-performance WASM image palette extractor using CIELAB + K-Means++"
 license     = "MIT"
+repository  = "https://github.com/pmartiamarista/pixel-analyzer"
 keywords    = ["wasm", "image", "color", "palette", "cielab"]
 categories  = ["wasm", "multimedia::images"]
+
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false
 
 [lib]
 crate-type = ["cdylib", "rlib"]

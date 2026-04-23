@@ -4,8 +4,15 @@
 
 ### Changed
 - Migrated project to Rust 2024 Edition.
-- Updated all dependencies to their latest stable versions (`wasm-bindgen`, `serde`, `image`, etc.).
-- Fixed clippy warnings arising from the new compiler version (`collapsible_if`).
+- Updated dependencies to latest stable versions.
+- Disabled `wasm-opt` in `Cargo.toml` to ensure build stability with modern Rust.
+- Refactored `Makefile` with comprehensive targets (`verify`, `wasm-dev`, `doc`).
+
+### Added
+- Created `docs/API.md` with full TypeScript-style type definitions.
+- Added MIT `LICENSE` file.
+- Implemented `doc` target in `Makefile` for auto-generating documentation.
+- Integrated `repository` and `license` metadata in `Cargo.toml`.
 
 ## [0.1.1] — 2026-04-23
 

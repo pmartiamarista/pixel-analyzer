@@ -78,15 +78,20 @@ Pure Rust decoding support for:
 
 ## Development
 
+Use the provided `Makefile` for standard development tasks:
+
 ```bash
+# Run all quality checks (fmt + clippy)
+make verify
+
 # Run unit and integration tests
-cargo test
+make test
 
-# Linting
-cargo clippy -- -D warnings
+# Generate and open documentation
+make doc
 
-# Formatting
-cargo fmt --check
+# Clean build artifacts
+make clean
 ```
 
 ## Documentation
