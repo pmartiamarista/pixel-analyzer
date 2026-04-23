@@ -140,7 +140,7 @@ fn build_clusters(
         })
         .collect();
 
-    clusters.sort_by(|a, b| b.pixel_count.cmp(&a.pixel_count));
+    clusters.sort_by_key(|c| std::cmp::Reverse(c.pixel_count));
     clusters
 }
 
