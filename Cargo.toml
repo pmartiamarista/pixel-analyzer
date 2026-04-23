@@ -1,0 +1,35 @@
+[package]
+name        = "pixel-analyzer"
+version     = "0.1.2"
+edition     = "2024"
+description = "High-performance WASM image palette extractor using CIELAB + K-Means++"
+license     = "MIT"
+keywords    = ["wasm", "image", "color", "palette", "cielab"]
+categories  = ["wasm", "multimedia::images"]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+default = ["console_error_panic_hook"]
+
+[dependencies]
+wasm-bindgen         = "0.2.99"
+wasm-bindgen-futures = "0.4.49"
+js-sys               = "0.3.76"
+
+serde              = { version = "1.0.217", features = ["derive"] }
+serde-wasm-bindgen = "0.6.5"
+
+image = { version = "0.25.5", default-features = false, features = ["png", "jpeg", "webp"] }
+
+console_error_panic_hook = { version = "0.1.7", optional = true }
+
+getrandom = { version = "0.2.15", features = ["js"] }
+
+[profile.release]
+opt-level     = "z"
+lto           = true
+codegen-units = 1
+panic         = "abort"
+strip         = true
