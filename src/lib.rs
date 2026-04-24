@@ -6,6 +6,7 @@ pub mod accessibility;
 pub mod color;
 pub mod color_theory;
 pub mod config;
+pub mod decoder;
 pub mod error;
 pub mod kmeans;
 pub mod metrics;
@@ -86,11 +87,7 @@ fn run_pipeline(bytes: Vec<u8>, config: AnalysisConfig) -> Result<JsValue, Analy
 
     let start_ms = now_ms();
 
-    let (img, warning) = decode(&bytes)?;
-    let img_width = img.width();
-    let img_height = img.height();
-
-    let rgba_bytes = to_rgba(&img);
+    let (rgba_bytes, img_width, img_height, warning) = decoder::decode(&bytes)?;
 
     let rgb_pixels = sampler::sample_pixels(&rgba_bytes, img_width, img_height, config.quality);
 
@@ -128,47 +125,6 @@ fn validate_buffer(bytes: &[u8]) -> Result<(), AnalyzerError> {
         return Err(AnalyzerError::EmptyBuffer);
     }
     Ok(())
-}
-
-fn decode(bytes: &[u8]) -> Result<(image::DynamicImage, Option<String>), AnalyzerError> {
-    let format = detect_format(bytes)?;
-    let mut warning = None;
-
-    let img = image::load_from_memory_with_format(bytes, format)
-        .map_err(|e| AnalyzerError::DecodingFailed(e.to_string()))?;
-
-    if img.color() == image::ColorType::L8 || img.color() == image::ColorType::La8 {
-        warning = Some("Image is greyscale; colour palette will be achromatic.".to_string());
-    }
-
-    Ok((img, warning))
-}
-
-fn detect_format(bytes: &[u8]) -> Result<image::ImageFormat, AnalyzerError> {
-    if bytes.len() < 4 {
-        return Err(AnalyzerError::UnsupportedFormat(
-            "Buffer too short to detect format".to_string(),
-        ));
-    }
-
-    if bytes.starts_with(&[0x89, 0x50, 0x4E, 0x47]) {
-        return Ok(image::ImageFormat::Png);
-    }
-    if bytes.starts_with(&[0xFF, 0xD8]) {
-        return Ok(image::ImageFormat::Jpeg);
-    }
-    if bytes.len() >= 12 && &bytes[0..4] == b"RIFF" && &bytes[8..12] == b"WEBP" {
-        return Ok(image::ImageFormat::WebP);
-    }
-
-    Err(AnalyzerError::UnsupportedFormat(format!(
-        "Unknown magic bytes: {:02X} {:02X} {:02X} {:02X}",
-        bytes[0], bytes[1], bytes[2], bytes[3]
-    )))
-}
-
-fn to_rgba(img: &image::DynamicImage) -> Vec<u8> {
-    img.to_rgba8().into_raw()
 }
 
 fn serialise(report: &AnalysisReport) -> Result<JsValue, AnalyzerError> {

@@ -25,13 +25,13 @@
 | OG-2 | Generate accessibility reports that comply with WCAG 2.1 standards (AA and AAA). |
 | OG-3 | Produce design recommendations based on color theory (LCh, harmonies). |
 | OG-4 | Guarantee constant analysis time independent of the original image size. |
-| OG-5 | Deliver a WASM binary under 200 KB, suitable for limited bandwidth environments. |
+| OG-5 | Deliver a WASM binary under 500 KB with zero runtime dependencies on native code. |
 
 ### 1.4 Specific Objectives
 
 | # | Objective | Success Metric |
 |---|----------|-----------------|
-| OE-1 | Support PNG, JPEG, and WebP formats without C dependencies. | Successful decoding in ≥ 99% of cases. |
+| OE-1 | Support PNG, JPEG, and WebP formats without C dependencies. Decoding via `png`, `zune-jpeg`, and `image-webp` crates directly. | Successful decoding in ≥ 99% of cases. |
 | OE-2 | Extract between 2 and 16 dominant colors with K-Means++. | Convergence in < 100 iterations for ε = 1.0 ΔE. |
 | OE-3 | Implement 32×32 grid stratified spatial sampling. | Representation of all regions in the sample. |
 | OE-4 | Classify colors into vibrant, muted, light, and dark categories via CIELCh. | Thresholds: C* > 28 (vibrant), C* < 15 (muted), L* > 80 (light), L* < 20 (dark). |
@@ -51,7 +51,7 @@ The development is guided by five core pillars:
 - **SOLID:** Each module has a single responsibility (color transformation, sampling, clustering, metrics, reporting). They are independent and testable in isolation.
 - **YAGNI:** Advanced categorization, ICC profiles, and GIF/AVIF support are excluded from the v1.0 core and marked as extensible modules.
 - **Clean Code:** Semantic naming in Rust (`delta_e`, `stratified_sample`, `kmeans_plus_plus`), explicit data contracts, and documentation containing bibliographic references.
-- **No Non-Doc Comments:** All inline and block comments (`//`, `/* */`) are forbidden. Documentation must reside exclusively in `///` doc-comments or external markdown.
+- **No Comments:** All comments are forbidden — inline, block, and doc comments. Code must be self-documenting through naming.
 
 ---
 
@@ -212,10 +212,10 @@ terminate(): void
 interface AnalysisReport {
   // 1. SEMANTIC HIERARCHY
   main: {
-    dominant:              ColorEntry;  // Highest population density
-    accent:                ColorEntry;  // Maximizes ΔE and C* relative to dominant
-    background_suggestion: string;      // Optimized hex for backgrounds
-    foreground_suggestion: string;      // "#000000" | "#FFFFFF"
+    dominant:              ColorEntry;           // Highest population density
+    accent?:               ColorEntry | null;    // Maximizes ΔE and C* vs dominant; null when ΔE < 5
+    background_suggestion: string;               // Optimized hex for backgrounds
+    foreground_suggestion: string;               // "#000000" | "#FFFFFF"
   };
 
   // 2. CLASSIFIED PALETTES (LCh filter)

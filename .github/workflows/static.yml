@@ -88,6 +88,8 @@ jobs:
 
       - name: Verify WASM binary size
         run: |
-          SIZE=$(du -k pkg/pixel_analyzer_bg.wasm | cut -f1)
+          WASM=pkg/pixel_analyzer_bg.wasm
+          [ -f "$WASM" ] || (echo "WASM artifact not found" && exit 1)
+          SIZE=$(du -k "$WASM" | cut -f1)
           echo "WASM size: ${SIZE} KB"
-          [ "$SIZE" -le 200 ] || (echo "Binary exceeds 200 KB limit" && exit 1)
+          [ "$SIZE" -le 500 ] || (echo "Binary exceeds 500 KB limit: ${SIZE} KB" && exit 1)

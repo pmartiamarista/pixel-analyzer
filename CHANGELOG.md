@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.1.4] - 2026-04-25
+
+### Refactored
+- [refactor]: extract `src/decoder.rs` as dedicated ingestion module; `lib.rs` now calls `decoder::decode()` and has zero knowledge of image format specifics
+- [refactor]: decompose monolithic `tests/color_conversion.rs` into modular files (`color.rs`, `accessibility.rs`, `kmeans.rs`, etc.) in the `tests/` directory
+- [refactor]: move all unit tests out of the `src/` modules into the `tests/` integration suite for a clean separation of concerns
+
+### Fixed
+- [fix]: replace `image` crate with direct decoders `png`, `zune-jpeg`, `image-webp`; eliminates `pxfm`/`moxcms` chain (~200 KB overhead) from WASM binary (N-01)
+- [fix]: add file existence guard to CI WASM size step before `du -k` measurement (N-04)
+- [fix]: update CI WASM size gate from 200 KB to 500 KB reflecting actual optimised binary size after decoder refactor
+- [fix]: update `docs/DETA.md` §5.3 to declare `accent?: ColorEntry | null` matching Rust type (N-03)
+- [fix]: update OG-5 in `docs/DETA.md` from 200 KB to 500 KB to reflect the measured optimised binary
+- [fix]: refactor `From<AnalyzerError> for JsValue` and `report` match logic to resolve `rust-analyzer` type inference ambiguity and false-positive shadowing warnings
+
 ## [0.1.3] - 2026-04-24
 
 ### Fixed

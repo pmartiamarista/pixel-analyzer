@@ -97,35 +97,3 @@ fn collect_cell(
     }
     out
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    fn make_rgba(r: u8, g: u8, b: u8, a: u8) -> [u8; 4] {
-        [r, g, b, a]
-    }
-
-    fn red_4x4() -> Vec<u8> {
-        (0..16).flat_map(|_| make_rgba(255, 0, 0, 255)).collect()
-    }
-
-    #[test]
-    fn sample_returns_red_pixels() {
-        let pixels = red_4x4();
-        let result = sample_pixels(&pixels, 4, 4, Quality::Precise);
-        assert!(!result.is_empty());
-        for px in &result {
-            assert_eq!(px.r, 255);
-            assert_eq!(px.g, 0);
-            assert_eq!(px.b, 0);
-        }
-    }
-
-    #[test]
-    fn transparent_pixels_are_skipped() {
-        let pixels = vec![255u8, 0, 0, 0];
-        let result = sample_pixels(&pixels, 1, 1, Quality::Precise);
-        assert!(result.is_empty(), "Transparent pixel should be skipped");
-    }
-}

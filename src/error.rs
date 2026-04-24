@@ -15,7 +15,7 @@ pub enum AnalyzerError {
 
 impl From<AnalyzerError> for JsValue {
     fn from(e: AnalyzerError) -> JsValue {
-        let msg = match e {
+        match e {
             AnalyzerError::EmptyBuffer => {
                 "AnalyzerError [EmptyBuffer]: The provided buffer is empty.".to_string()
             }
@@ -40,7 +40,7 @@ impl From<AnalyzerError> for JsValue {
                  Try reducing max_colors or using Quality::Precise."
                     .to_string()
             }
-        };
-        JsValue::from_str(&msg)
+        }
+        .into()
     }
 }

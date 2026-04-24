@@ -167,36 +167,3 @@ impl SimpleLcg {
         (self.next_u64() >> 11) as f32 / (1u64 << 53) as f32
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    fn lab(l: f32, a: f32, b: f32) -> LabColor {
-        LabColor { l, a, b }
-    }
-
-    #[test]
-    fn clusters_separate_colours() {
-        let mut pixels = Vec::new();
-        for i in 0..50 {
-            pixels.push(lab(1.0 + i as f32 * 0.01, 0.0, 0.0));
-        }
-        for i in 0..50 {
-            pixels.push(lab(99.0 - i as f32 * 0.01, 0.0, 0.0));
-        }
-
-        let clusters = kmeans_plus_plus(&pixels, 2, 1.0, 100).unwrap();
-        assert_eq!(clusters.len(), 2);
-
-        assert!(clusters[0].pixel_count >= 40);
-        assert!(clusters[1].pixel_count >= 40);
-    }
-
-    #[test]
-    fn insufficient_pixels_returns_error() {
-        let pixels = vec![lab(50.0, 0.0, 0.0)];
-        let result = kmeans_plus_plus(&pixels, 5, 1.0, 100);
-        assert!(matches!(result, Err(AnalyzerError::InsufficientPixels)));
-    }
-}

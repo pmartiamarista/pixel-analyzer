@@ -1,4 +1,4 @@
-# pixel-analyzer v0.1.3
+# pixel-analyzer v0.1.4
 > High-performance perceptual colour intelligence for the browser, powered by Rust & WebAssembly.
 
 `pixel-analyzer` extracts meaningful colour palettes and image-level metrics entirely in the [CIELAB](https://en.wikipedia.org/wiki/CIELAB_color_space) perceptual colour space. It uses a refined **K-Means++** clustering engine with ΔE (CIE 1976) convergence to ensure that extracted colours are perceptually distinct and accurate.
@@ -18,7 +18,7 @@
 wasm-pack build --target web --release
 ```
 
-The resulting `pkg/` directory contains the compiled `.wasm` (< 200 KB) and JS bindings ready for integration.
+The resulting `pkg/` directory contains the compiled `.wasm` (< 500 KB) and JS bindings ready for integration.
 
 ## Quick Start
 

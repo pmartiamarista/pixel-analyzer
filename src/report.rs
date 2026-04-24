@@ -87,9 +87,7 @@ pub fn build(
 
     let merged_warning = match (warning, no_accent_warning) {
         (Some(w), Some(a)) => Some(format!("{} {}", w, a)),
-        (Some(w), None) => Some(w),
-        (None, Some(a)) => Some(a),
-        (None, None) => None,
+        (w, a) => w.or(a),
     };
 
     let image_stats = metrics::compute(
