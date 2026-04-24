@@ -72,7 +72,10 @@ impl From<AnalysisOptions> for AnalysisConfig {
     }
 }
 
-#[wasm_bindgen]
+#[wasm_bindgen(typescript_custom_section)]
+const TS_APPEND_CONTENT: &str = include_str!("bindings.ts");
+
+#[wasm_bindgen(skip_typescript)]
 pub fn analyze(data: js_sys::Uint8Array, options: Option<AnalysisOptions>) -> Promise {
     let bytes: Vec<u8> = data.to_vec();
 

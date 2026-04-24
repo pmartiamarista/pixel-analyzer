@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.5] - 2026-04-25
+
+### Added
+- [feat]: strongly-typed WASM bindings via `bindings.ts` injection; eliminates `any` types in public API.
+
 ## [0.1.4] - 2026-04-25
 
 ### Refactored

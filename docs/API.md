@@ -1,4 +1,4 @@
-# API Documentation — pixel-analyzer v0.1.4
+# API Documentation — pixel-analyzer v0.1.5
 
 This document provides a detailed reference for the `pixel-analyzer` JavaScript/TypeScript API.
 

@@ -1,6 +1,6 @@
 [package]
 name        = "pixel-analyzer"
-version     = "0.1.4"
+version     = "0.1.5"
 edition     = "2024"
 authors     = ["pmartiamarista <pmartiamarista@gmail.com>"]
 description = "High-performance WASM image palette extractor using CIELAB + K-Means++"
