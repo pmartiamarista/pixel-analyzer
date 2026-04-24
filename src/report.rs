@@ -25,7 +25,8 @@ pub struct AnalysisReport {
 pub struct MainPalette {
     pub dominant: ColorEntry,
 
-    pub accent: ColorEntry,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub accent: Option<ColorEntry>,
 
     pub background_suggestion: String,
 
@@ -56,7 +57,7 @@ pub fn build(
 
     let accent = pick_accent(&entries, &dominant);
 
-    let foreground_suggestion = accessibility::best_font_color(hex_to_rgb(&dominant.hex));
+    let foreground_suggestion = accessibility::best_font_color(RgbColor::from_hex(&dominant.hex));
 
     let background_suggestion = suggest_background(clusters[0].centroid);
 
@@ -65,7 +66,31 @@ pub fn build(
     let light: Vec<_> = entries.iter().filter(|e| e.lch.l > 80.0).cloned().collect();
     let dark: Vec<_> = entries.iter().filter(|e| e.lch.l < 20.0).cloned().collect();
 
-    let accessibility = accessibility::evaluate(hex_to_rgb(&dominant.hex), hex_to_rgb(&accent.hex));
+    let accessibility = accent
+        .as_ref()
+        .map(|ac| {
+            accessibility::evaluate(
+                RgbColor::from_hex(&dominant.hex),
+                RgbColor::from_hex(&ac.hex),
+            )
+        })
+        .unwrap_or_else(|| {
+            accessibility::evaluate(
+                RgbColor::from_hex(&dominant.hex),
+                RgbColor::from_hex(&dominant.hex),
+            )
+        });
+
+    let no_accent_warning = accent.is_none().then_some(
+        "No perceptually distinct accent colour found (ΔE < 5 from dominant).".to_string(),
+    );
+
+    let merged_warning = match (warning, no_accent_warning) {
+        (Some(w), Some(a)) => Some(format!("{} {}", w, a)),
+        (Some(w), None) => Some(w),
+        (None, Some(a)) => Some(a),
+        (None, None) => None,
+    };
 
     let image_stats = metrics::compute(
         rgb_pixels,
@@ -101,7 +126,7 @@ pub fn build(
         color_theory,
         analysis_time_ms,
         pixels_analyzed: lab_pixels.len(),
-        warning,
+        warning: merged_warning,
     }
 }
 
@@ -127,7 +152,7 @@ fn cluster_to_entry(cluster: &Cluster) -> ColorEntry {
     }
 }
 
-fn pick_accent(entries: &[ColorEntry], dominant: &ColorEntry) -> ColorEntry {
+fn pick_accent(entries: &[ColorEntry], dominant: &ColorEntry) -> Option<ColorEntry> {
     let dom_lab = LabColor {
         l: dominant.lab.l,
         a: dominant.lab.a,
@@ -137,13 +162,20 @@ fn pick_accent(entries: &[ColorEntry], dominant: &ColorEntry) -> ColorEntry {
     entries
         .iter()
         .skip(1)
+        .filter(|e| {
+            let lab = LabColor {
+                l: e.lab.l,
+                a: e.lab.a,
+                b: e.lab.b,
+            };
+            lab.delta_e(dom_lab) > 5.0
+        })
         .max_by(|a, b| {
             let score_a = accent_score(a, dom_lab);
             let score_b = accent_score(b, dom_lab);
             score_a.partial_cmp(&score_b).unwrap()
         })
         .cloned()
-        .unwrap_or_else(|| entries[entries.len() - 1].clone())
 }
 
 fn accent_score(entry: &ColorEntry, dominant_lab: LabColor) -> f32 {
@@ -170,18 +202,4 @@ fn suggest_background(dominant: LabColor) -> String {
         }
     };
     lab_to_rgb(bg_lab).to_hex()
-}
-
-fn hex_to_rgb(hex: &str) -> RgbColor {
-    let h = hex.trim_start_matches('#');
-    if h.len() == 6
-        && let (Ok(r), Ok(g), Ok(b)) = (
-            u8::from_str_radix(&h[0..2], 16),
-            u8::from_str_radix(&h[2..4], 16),
-            u8::from_str_radix(&h[4..6], 16),
-        )
-    {
-        return RgbColor { r, g, b };
-    }
-    RgbColor { r: 0, g: 0, b: 0 }
 }

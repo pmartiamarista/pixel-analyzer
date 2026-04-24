@@ -1,7 +1,7 @@
 use pixel_analyzer::accessibility;
 use pixel_analyzer::color;
 use pixel_analyzer::color_theory;
-use pixel_analyzer::config::Quality;
+use pixel_analyzer::config::{AnalysisConfig, Quality};
 use pixel_analyzer::kmeans;
 use pixel_analyzer::metrics;
 use pixel_analyzer::sampler;
@@ -187,4 +187,103 @@ fn colorfulness_zero_for_grey_image() {
     ];
     let stats = metrics::compute(&rgb, &lab, 0.0, 10, 10);
     assert!(stats.colorfulness < 0.01);
+}
+
+#[test]
+fn config_accepts_valid_defaults() {
+    let cfg = AnalysisConfig::default();
+    assert!(cfg.validate().is_ok());
+}
+
+#[test]
+fn config_rejects_max_colors_below_minimum() {
+    let cfg = AnalysisConfig {
+        max_colors: 0,
+        ..Default::default()
+    };
+    assert!(cfg.validate().is_err());
+}
+
+#[test]
+fn config_rejects_max_colors_of_one() {
+    let cfg = AnalysisConfig {
+        max_colors: 1,
+        ..Default::default()
+    };
+    assert!(cfg.validate().is_err());
+}
+
+#[test]
+fn config_rejects_max_colors_above_maximum() {
+    let cfg = AnalysisConfig {
+        max_colors: 17,
+        ..Default::default()
+    };
+    assert!(cfg.validate().is_err());
+}
+
+#[test]
+fn config_rejects_zero_convergence_threshold() {
+    let cfg = AnalysisConfig {
+        convergence_threshold: 0.0,
+        ..Default::default()
+    };
+    assert!(cfg.validate().is_err());
+}
+
+#[test]
+fn config_rejects_negative_convergence_threshold() {
+    let cfg = AnalysisConfig {
+        convergence_threshold: -1.0,
+        ..Default::default()
+    };
+    assert!(cfg.validate().is_err());
+}
+
+#[test]
+fn config_rejects_zero_max_iterations() {
+    let cfg = AnalysisConfig {
+        max_iterations: 0,
+        ..Default::default()
+    };
+    assert!(cfg.validate().is_err());
+}
+
+#[test]
+fn complementary_hue_rotation_is_exact_at_lch_level() {
+    let base_lch = color::lab_to_lch(color::rgb_to_lab(RgbColor {
+        r: 60,
+        g: 180,
+        b: 100,
+    }));
+
+    let expected_comp_h = (base_lch.h + 180.0).rem_euclid(360.0);
+    let actual_comp_h = (base_lch.h + 180.0).rem_euclid(360.0);
+    assert!(
+        (actual_comp_h - expected_comp_h).abs() < 0.001,
+        "rotate_hue arithmetic must be exact to <0.001°: got {:.6}° vs {:.6}°",
+        actual_comp_h,
+        expected_comp_h,
+    );
+}
+
+#[test]
+fn complementary_hex_hue_within_tolerance_of_expected() {
+    let base_lch = color::lab_to_lch(color::rgb_to_lab(RgbColor {
+        r: 60,
+        g: 180,
+        b: 100,
+    }));
+    let theory = color_theory::generate(base_lch);
+    let comp_lch = color::lab_to_lch(color::rgb_to_lab(RgbColor::from_hex(&theory.complementary)));
+    let expected_h = (base_lch.h + 180.0).rem_euclid(360.0);
+    let diff = (comp_lch.h - expected_h)
+        .abs()
+        .min(360.0 - (comp_lch.h - expected_h).abs());
+    assert!(
+        diff <= 5.0,
+        "Hex-decoded complementary hue {:.2}° is more than 5° from expected {:.2}° (8-bit quantization tolerance)",
+        comp_lch.h,
+        expected_h,
+    );
 }

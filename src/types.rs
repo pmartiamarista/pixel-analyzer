@@ -27,6 +27,20 @@ impl RgbColor {
     pub fn to_hex(self) -> String {
         format!("#{:02X}{:02X}{:02X}", self.r, self.g, self.b)
     }
+
+    pub fn from_hex(hex: &str) -> Self {
+        let h = hex.trim_start_matches('#');
+        if h.len() == 6
+            && let (Ok(r), Ok(g), Ok(b)) = (
+                u8::from_str_radix(&h[0..2], 16),
+                u8::from_str_radix(&h[2..4], 16),
+                u8::from_str_radix(&h[4..6], 16),
+            )
+        {
+            return RgbColor { r, g, b };
+        }
+        RgbColor { r: 0, g: 0, b: 0 }
+    }
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -61,25 +75,6 @@ pub struct LchColor {
     pub l: f32,
     pub c: f32,
     pub h: f32,
-}
-
-impl LchColor {
-    #[inline]
-    pub fn is_vibrant(self) -> bool {
-        self.c > 28.0
-    }
-    #[inline]
-    pub fn is_muted(self) -> bool {
-        self.c < 15.0
-    }
-    #[inline]
-    pub fn is_light_tone(self) -> bool {
-        self.l > 80.0
-    }
-    #[inline]
-    pub fn is_dark_tone(self) -> bool {
-        self.l < 20.0
-    }
 }
 
 #[derive(Debug, Clone, Serialize)]

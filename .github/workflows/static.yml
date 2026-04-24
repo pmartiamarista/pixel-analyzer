@@ -34,7 +34,7 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock', '**/Cargo.toml') }}
 
       - name: Check Formatting
         run: cargo fmt --check
@@ -61,7 +61,7 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock', '**/Cargo.toml') }}
 
       - name: Run Tests
         run: cargo test
@@ -85,3 +85,9 @@ jobs:
 
       - name: Build WASM
         run: make wasm
+
+      - name: Verify WASM binary size
+        run: |
+          SIZE=$(du -k pkg/pixel_analyzer_bg.wasm | cut -f1)
+          echo "WASM size: ${SIZE} KB"
+          [ "$SIZE" -le 200 ] || (echo "Binary exceeds 200 KB limit" && exit 1)

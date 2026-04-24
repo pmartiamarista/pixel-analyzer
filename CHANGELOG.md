@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.1.3] - 2026-04-24
+
+### Fixed
+- [fix]: refactor `pick_accent()` to return `Option<ColorEntry>` with ΔE≥5 filter; eliminates monochromatic-image bug where accent was identical to dominant (C-02)
+- [fix]: propagate `Option<ColorEntry>` through `MainPalette.accent`; emit warning when no perceptually distinct accent exists
+- [fix]: move `hex_to_rgb()` from `report.rs` to `RgbColor::from_hex()` in `types.rs` per module responsibility rule (M-02)
+- [fix]: synchronise wasm-bindgen family pin versions with Cargo.lock (`=0.2.118`, `=0.4.68`, `=0.3.95`) (M-04)
+
+### Refactored
+- [refactor]: remove four dead-code `LchColor` methods (`is_vibrant`, `is_muted`, `is_light_tone`, `is_dark_tone`); thresholds remain inline in `report.rs` (M-01)
+
+### Tests
+- [test]: add six boundary tests for `AnalysisConfig::validate()` covering all invalid edge cases (C-03)
+- [test]: add `complementary_hue_rotation_is_exact_at_lch_level` and `complementary_hex_hue_within_tolerance_of_expected` to satisfy OE-8 numeric hue assertion (M-03)
+
+### CI
+- [feat]: add WASM binary size gate to `build-wasm` job; exits with code 1 if `pixel_analyzer_bg.wasm` exceeds 200 KB (C-01)
+- [fix]: include `**/Cargo.toml` in Cargo cache key hash for both `quality` and `test` jobs (M-05)
+
 ## [0.1.2] - 2026-04-23
 
 ### Changed

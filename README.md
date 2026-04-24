@@ -1,4 +1,4 @@
-# pixel-analyzer
+# pixel-analyzer v0.1.3
 > High-performance perceptual colour intelligence for the browser, powered by Rust & WebAssembly.
 
 `pixel-analyzer` extracts meaningful colour palettes and image-level metrics entirely in the [CIELAB](https://en.wikipedia.org/wiki/CIELAB_color_space) perceptual colour space. It uses a refined **K-Means++** clustering engine with ΔE (CIE 1976) convergence to ensure that extracted colours are perceptually distinct and accurate.
@@ -27,15 +27,19 @@ import init, { analyze, AnalysisOptions, Quality } from './pkg/pixel_analyzer.js
 
 async function run() {
     await init();
-    
+
     const response = await fetch('image.jpg');
     const bytes = new Uint8Array(await response.arrayBuffer());
-    
-    // Use defaults (5 colours, Balanced quality)
+
     const options = AnalysisOptions.defaults();
-    
+
     const report = await analyze(bytes, options);
-    console.log('Dominant Colour:', report.main.dominant.hex);
+    console.log('Dominant:', report.main.dominant.hex);
+
+    if (report.main.accent) {
+        console.log('Accent:', report.main.accent.hex);
+    }
+
     console.log('Vibrant Palette:', report.palettes.vibrant);
 }
 ```
@@ -100,6 +104,7 @@ For deeper dives into the technical implementation and the full API specificatio
 
 - **[API Reference](docs/API.md)**: Detailed TypeScript definitions and function signatures.
 - **[Technical Specification (DETA)](docs/DETA.md)**: Mathematical foundations, system architecture, and clustering logic.
+- **[Changelog](CHANGELOG.md)**: Per-version history of all changes.
 
 ## License
 MIT

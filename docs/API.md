@@ -1,4 +1,4 @@
-# API Documentation
+# API Documentation — pixel-analyzer v0.1.3
 
 This document provides a detailed reference for the `pixel-analyzer` JavaScript/TypeScript API.
 
@@ -45,46 +45,56 @@ The structured result returned by the `analyze` function.
 
 ```typescript
 interface AnalysisReport {
-  main: {
-    dominant: ColorEntry;              // Most frequent color group
-    accent: ColorEntry;                // Most visually distinct vibrant color
-    background_suggestion: string;     // Hex code for a matching background
-    foreground_suggestion: string;     // "#000000" or "#FFFFFF" for accessibility
-  };
-  palettes: {
-    vibrant: ColorEntry[];             // Highly saturated colors (C* > 28)
-    muted: ColorEntry[];               // Low saturation colors (C* < 15)
-    light: ColorEntry[];               // High luminance colors (L* > 80)
-    dark: ColorEntry[];                // Low luminance colors (L* < 20)
-    raw: ColorEntry[];                 // Unfiltered results from K-Means
-  };
-  accessibility: {
-    contrast_ratio: number;            // Contrast between dominant and accent
-    is_aa_normal: boolean;             // Passes WCAG AA Large Text
-    is_aaa_normal: boolean;            // Passes WCAG AAA
-    recommended_font_color: string;    // Best legible font color for the dominant color
-  };
-  image_stats: {
-    brightness: number;                // Mean lightness (0-100)
-    colorfulness: number;              // Global saturation metric (0-100)
-    entropy: number;                   // Visual complexity (0.0-8.0)
-    dominant_hue_group: "warm" | "cool" | "neutral";
-    orientation: "landscape" | "portrait" | "square";
-  };
-  color_theory: {
-    complementary: string;             // Hex at +180 degrees
-    triadic: [string, string];         // Hexes at ±120 degrees
-    analogous: [string, string];       // Hexes at ±30 degrees
-  };
-  analysis_time_ms: number;            // Total processing time
-  pixels_analyzed: number;             // Count of pixels processed
-  warning?: string;                    // Non-fatal processing warnings
+  main: MainPalette;
+  palettes: Palettes;
+  accessibility: AccessibilityReport;
+  image_stats: ImageStats;
+  color_theory: ColorTheory;
+  analysis_time_ms: number;
+  pixels_analyzed: number;
+  warning?: string;
+}
+
+interface MainPalette {
+  dominant: ColorEntry;
+  accent?: ColorEntry | null;
+  background_suggestion: string;
+  foreground_suggestion: string;
+}
+
+interface Palettes {
+  vibrant: ColorEntry[];
+  muted: ColorEntry[];
+  light: ColorEntry[];
+  dark: ColorEntry[];
+  raw: ColorEntry[];
+}
+
+interface AccessibilityReport {
+  contrast_ratio: number;
+  is_aa_normal: boolean;
+  is_aaa_normal: boolean;
+  recommended_font_color: string;
+}
+
+interface ImageStats {
+  brightness: number;
+  colorfulness: number;
+  entropy: number;
+  dominant_hue_group: "warm" | "cool" | "neutral";
+  orientation: "landscape" | "portrait" | "square";
+}
+
+interface ColorTheory {
+  complementary: string;
+  triadic: [string, string];
+  analogous: [string, string];
 }
 
 interface ColorEntry {
-  hex: string;                         // Web-ready hex string (e.g., "#3498DB")
-  population: number;                  // Ratio of pixels in this cluster (0.0 - 1.0)
-  is_dark: boolean;                    // True if L* < 50
+  hex: string;
+  population: number;
+  is_dark: boolean;
   lab: { l: number; a: number; b: number };
   lch: { l: number; c: number; h: number };
 }
