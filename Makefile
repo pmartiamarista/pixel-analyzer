@@ -38,6 +38,9 @@ wasm-dev:
 test:
 	@$(CARGO) test
 
+test-wasm:
+	@$(WASM_PACK) test --headless --chrome
+
 # Documentation
 doc:
 	@$(CARGO) doc --no-deps --open

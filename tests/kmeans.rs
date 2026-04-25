@@ -57,17 +57,3 @@ fn clusters_separate_colours() {
     assert!(clusters[0].pixel_count >= 40);
     assert!(clusters[1].pixel_count >= 40);
 }
-
-#[test]
-fn insufficient_pixels_returns_error_v2() {
-    let pixels = vec![LabColor {
-        l: 50.0,
-        a: 0.0,
-        b: 0.0,
-    }];
-    let result = kmeans::kmeans_plus_plus(&pixels, 5, 1.0, 100);
-    assert!(matches!(
-        result,
-        Err(pixel_analyzer::error::AnalyzerError::InsufficientPixels)
-    ));
-}

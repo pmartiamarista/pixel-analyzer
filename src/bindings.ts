@@ -90,16 +90,37 @@ export interface LchValues {
 export interface AccessibilityReport {
     /** Contrast ratio between dominant and accent (or dominant and white if no accent). */
     contrast_ratio: number;
-    /** Passes WCAG AA for normal text. */
-    is_aa: boolean;
-    /** Passes WCAG AAA for normal text. */
-    is_aaa: boolean;
-    /** Passes WCAG AA for large text. */
-    is_aa_large: boolean;
-    /** Passes WCAG AAA for large text. */
-    is_aaa_large: boolean;
-    /** Human-readable pass/fail summary. */
-    recommendation: string;
+    /** Passes WCAG AA for normal text (>= 4.5:1). */
+    is_aa_normal: boolean;
+    /** Passes WCAG AAA for normal text (>= 7.0:1). */
+    is_aaa_normal: boolean;
+    /** Recommended hex color for font readability on this color (#000000 or #FFFFFF). */
+    recommended_font_color: string;
+}
+
+/**
+ * Configuration for the analysis pipeline.
+ */
+export declare class AnalysisOptions {
+    /** Number of clusters to extract (2 to 16). */
+    max_colors: number;
+    /** Sampling density. */
+    quality: Quality;
+    /** Delta-E threshold for K-Means convergence. */
+    convergence: number;
+
+    constructor(max_colors: number, quality: Quality, convergence: number);
+    /** Returns an instance with standard balanced settings. */
+    static defaults(): AnalysisOptions;
+}
+
+/**
+ * Pixel sampling density variants.
+ */
+export enum Quality {
+    Draft = 0,
+    Balanced = 1,
+    Precise = 2,
 }
 
 /**
@@ -134,7 +155,7 @@ export interface ColorTheory {
  * Asynchronously analyzes an image buffer and returns a detailed perceptual report.
  * 
  * @param {Uint8Array} data - Raw PNG, JPEG, or WebP bytes.
- * @param {any} options - Configuration for max_colors, quality, and convergence.
+ * @param {AnalysisOptions} options - Configuration for max_colors, quality, and convergence.
  * @returns {Promise<AnalysisReport>}
  */
-export function analyze(data: Uint8Array, options?: any): Promise<AnalysisReport>;
+export function analyze(data: Uint8Array, options?: AnalysisOptions): Promise<AnalysisReport>;

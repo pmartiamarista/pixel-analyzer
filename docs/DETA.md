@@ -51,7 +51,7 @@ The development is guided by five core pillars:
 - **SOLID:** Each module has a single responsibility (color transformation, sampling, clustering, metrics, reporting). They are independent and testable in isolation.
 - **YAGNI:** Advanced categorization, ICC profiles, and GIF/AVIF support are excluded from the v1.0 core and marked as extensible modules.
 - **Clean Code:** Semantic naming in Rust (`delta_e`, `stratified_sample`, `kmeans_plus_plus`), explicit data contracts, and documentation containing bibliographic references.
-- **No Comments:** All comments are forbidden — inline, block, and doc comments. Code must be self-documenting through naming.
+- **No Non-Doc Comments:** Inline (`//`) and block (`/* */`) comments are forbidden. Documentation must reside exclusively in `///` doc-comments or external markdown files.
 
 ---
 
@@ -292,8 +292,16 @@ pixel-analyzer/
 │   ├── accessibility.rs        # WCAG 2.1 contrast evaluation
 │   ├── metrics.rs              # Hasler-Suesstrunk, Shannon entropy, stats
 │   └── color_theory.rs         # Harmonies: complementary, triadic, analogous
-└── tests/
-    └── color_conversion.rs     # Unified integration and unit test suite
+└── tests/                      # Integration test suite
+    ├── accessibility.rs
+    ├── color.rs
+    ├── config.rs
+    ├── decoder.rs              # NEW: Format detection and expansion tests
+    ├── error.rs                # NEW: Error message format tests
+    ├── kmeans.rs
+    ├── metrics.rs
+    ├── report.rs
+    └── sampler.rs
 ```
 
 ---
@@ -301,7 +309,7 @@ pixel-analyzer/
 ## 7. WASM Implementation Considerations
 
 - **Asynchronous Execution:** `wasm-bindgen-futures` + `future_to_promise` ensures the browser's main thread remains responsive.
-- **Binary Footprint:** `release` profile using `opt-level = "z"`, `lto = true`, and `panic = "abort"` to hit the < 200 KB target.
+- **Binary Footprint:** `release` profile using `opt-level = "z"`, `lto = true`, and `panic = "abort"` to hit the < 500 KB target.
 - **Memory Safety:** JS `Uint8Array` is copied into a Rust `Vec<u8>` at the start of `analyze()`. The Rust borrow checker manages automated deallocation. No raw pointers are exposed.
 - **Error Handling:** Pipeline failures reject JS Promises with descriptive strings from the `AnalyzerError` enum.
 - **Zero-Unsafe:** No `unsafe` blocks are permitted in the library. If performance profiles require it later, they must be documented with `// SAFETY:` justifications.

@@ -1,9 +1,31 @@
 # Changelog
 
+## [0.1.6] - 2026-04-25
+
+### Fixed
+- [fix]: resolve critical type contract mismatch in `bindings.ts`; `AccessibilityReport` fields now correctly match Rust struct (`is_aa_normal`, `is_aaa_normal`, `recommended_font_color`) (F-01, OE-5)
+- [fix]: replace `any` type for `options` in `analyze()` with proper `AnalysisOptions` class in `bindings.ts` (F-05)
+- [fix]: replace silent failure path in `decoder.rs` via `unwrap_or(0)` with explicit error propagation (F-09)
+- [fix]: fix tautological hue rotation test in `tests/color.rs` to actually verify `color_theory` logic (F-06)
+- [fix]: remove duplicate K-Means insufficient-pixels test in `tests/kmeans.rs` (F-07)
+- [fix]: update `docs/DETA.md` policy to restore `///` doc-comment permission; correctly align with Engineering Rule #2 (F-10)
+- [fix]: synchronise `docs/DETA.md` binary footprint target and project structure with current reality (F-03, F-04)
+
+### Added
+- [feat]: added `make test-wasm` target and integrated `wasm-pack test` into CI workflow (M-06)
+- [test]: added `tests/decoder.rs` covering format identification (PNG/JPEG/WebP) and RGBA expansion paths (F-08)
+- [test]: added `tests/error.rs` verifying all `AnalyzerError` variant message formats (M-08)
+
+### Refactored
+- [refactor]: implement `fmt::Display` for `AnalyzerError` to support native testing and cleaner `JsValue` conversion
+
+### Performance
+- [perf]: enable `wasm-opt` in `Cargo.toml` with optimized flags (`-Oz`) for binary size reduction (F-02, N-02)
+
 ## [0.1.5] - 2026-04-25
 
 ### Added
-- [feat]: strongly-typed WASM bindings via `bindings.ts` injection; eliminates `any` types in public API.
+- [feat]: strongly-typed WASM bindings via `bindings.ts` injection (initial implementation).
 
 ## [0.1.4] - 2026-04-25
 

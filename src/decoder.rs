@@ -33,7 +33,10 @@ fn decode_png(bytes: &[u8]) -> Result<(Vec<u8>, u32, u32, Option<String>), Analy
         reader.info().color_type,
         png::ColorType::Grayscale | png::ColorType::GrayscaleAlpha
     );
-    let mut buf = vec![0u8; reader.output_buffer_size().unwrap_or(0)];
+    let buf_size = reader.output_buffer_size().ok_or_else(|| {
+        AnalyzerError::DecodingFailed("PNG output buffer size unavailable".to_string())
+    })?;
+    let mut buf = vec![0u8; buf_size];
     let frame = reader
         .next_frame(&mut buf)
         .map_err(|e| AnalyzerError::DecodingFailed(e.to_string()))?;

@@ -63,19 +63,27 @@ fn triadic_colours_are_distinct() {
 
 #[test]
 fn complementary_hue_rotation_is_exact_at_lch_level() {
-    let base_lch = color::lab_to_lch(color::rgb_to_lab(RgbColor {
-        r: 60,
-        g: 180,
-        b: 100,
-    }));
+    let base_lch = LchColor {
+        l: 50.0,
+        c: 30.0,
+        h: 60.0,
+    };
+    let theory = color_theory::generate(base_lch);
+    let comp_rgb = RgbColor::from_hex(&theory.complementary);
+    let lab = color::rgb_to_lab(comp_rgb);
+    let lch = color::lab_to_lch(lab);
 
-    let expected_comp_h = (base_lch.h + 180.0).rem_euclid(360.0);
-    let actual_comp_h = (base_lch.h + 180.0).rem_euclid(360.0);
+    let expected_h = (base_lch.h + 180.0).rem_euclid(360.0);
+    let diff = (lch.h - expected_h)
+        .abs()
+        .min(360.0 - (lch.h - expected_h).abs());
+
     assert!(
-        (actual_comp_h - expected_comp_h).abs() < 0.001,
-        "rotate_hue arithmetic must be exact to <0.001°: got {:.6}° vs {:.6}°",
-        actual_comp_h,
-        expected_comp_h,
+        diff < 5.0,
+        "Complementary hue rotation mismatch: expected {:.2}°, got {:.2}° (diff {:.2}°)",
+        expected_h,
+        lch.h,
+        diff
     );
 }
 
