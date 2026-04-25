@@ -39,6 +39,9 @@ jobs:
       - name: Build WASM
         run: make wasm
 
+      - name: Debug Package Info
+        run: cat pkg/package.json
+
       - name: Publish to NPM
-        run: npm publish --provenance
+        run: npm publish --provenance --verbose
         working-directory: pkg
