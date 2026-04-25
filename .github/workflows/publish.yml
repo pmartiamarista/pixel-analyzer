@@ -39,6 +39,9 @@ jobs:
       - name: Build WASM
         run: make wasm
 
+      - name: Debug Config
+        run: npm config list
+
       - name: Debug Package Info
         run: cat pkg/package.json
 
