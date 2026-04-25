@@ -26,10 +26,16 @@ jobs:
         with:
           version: 'latest'
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
       - name: Build WASM
         run: make wasm
 
       - name: Publish to NPM
-        run: wasm-pack publish
+        run: npm publish pkg
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
