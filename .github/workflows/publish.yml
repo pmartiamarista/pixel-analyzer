@@ -40,6 +40,4 @@ jobs:
         run: make wasm
 
       - name: Publish to NPM
-        run: |
-          cd pkg
-          npm publish --provenance
+        run: npm publish ./pkg --access public --provenance
