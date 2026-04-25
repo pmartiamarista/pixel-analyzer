@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.7] - 2026-04-25
+
+### Fixed
+- [fix]: add missing `wasm-bindgen-test` to dev-dependencies to resolve CI failures in WASM test jobs (M-06)
+
 ## [0.1.6] - 2026-04-25
 
 ### Fixed

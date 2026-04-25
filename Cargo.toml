@@ -1,6 +1,6 @@
 [package]
 name        = "pixel-analyzer"
-version     = "0.1.6"
+version     = "0.1.7"
 edition     = "2024"
 authors     = ["pmartiamarista <pmartiamarista@gmail.com>"]
 description = "High-performance WASM image palette extractor using CIELAB + K-Means++"
@@ -34,6 +34,9 @@ image-webp = "0.2"
 console_error_panic_hook = { version = "0.1.7", optional = true }
 
 getrandom = { version = "0.2.15", features = ["js"] }
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3"
 
 [profile.release]
 opt-level     = "z"
