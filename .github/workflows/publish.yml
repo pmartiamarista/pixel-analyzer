@@ -40,4 +40,5 @@ jobs:
         run: make wasm
 
       - name: Publish to NPM
-        run: npm publish ./pkg --access public --provenance
+        run: npm publish --provenance
+        working-directory: pkg

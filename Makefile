@@ -29,6 +29,8 @@ fmt:
 # Production WASM Build
 wasm:
 	@$(WASM_PACK) build $(TARGET_WEB) --release
+	@echo "Injecting publishConfig into pkg/package.json..."
+	@node -e 'const fs=require("fs"); const pkg=JSON.parse(fs.readFileSync("./pkg/package.json")); pkg.publishConfig={access:"public", registry:"https://registry.npmjs.org/"}; fs.writeFileSync("./pkg/package.json", JSON.stringify(pkg, null, 2));'
 
 # Development WASM Build (no optimizations, faster)
 wasm-dev:
