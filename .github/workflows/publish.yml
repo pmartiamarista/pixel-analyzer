@@ -36,6 +36,8 @@ jobs:
         run: make wasm
 
       - name: Publish to NPM
-        run: npm publish pkg
+        run: |
+          cd pkg
+          npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
