@@ -109,6 +109,9 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
     needs: [quality, test, build-wasm]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -127,12 +130,21 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Build WASM
         run: make wasm
 
-      - name: Publish to NPM
+      - name: Fix package.json repository field
         run: |
-          rm -f .npmrc ~/.npmrc
-          npm publish --provenance --access public
+          node -e "
+            const fs = require('fs');
+            const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+            pkg.repository = { type: 'git', url: 'git+https://github.com/pmartiamarista/pixel-analyzer.git' };
+            fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));
+          "
+        working-directory: pkg
+
+      - name: Publish to NPM
+        run: npm publish --provenance --access public
         working-directory: pkg
