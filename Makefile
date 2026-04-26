@@ -1,7 +1,7 @@
 # pixel-analyzer Makefile
 # Standardized build and maintenance targets
 
-.PHONY: all build wasm wasm-dev test lint fmt clippy clean check verify doc help
+.PHONY: all build wasm wasm-dev test test-wasm lint fmt clippy clean check verify doc help
 
 # Configuration
 CARGO      := cargo
@@ -12,7 +12,7 @@ TARGET_WEB := --target web
 all: verify wasm
 
 # Run all quality checks and tests
-verify: check test
+verify: check test test-wasm
 
 # Project Checks
 check: fmt-check clippy
@@ -41,7 +41,7 @@ test:
 	@$(CARGO) test
 
 test-wasm:
-	@$(WASM_PACK) test --headless --chrome
+	@$(WASM_PACK) test --node
 
 # Documentation
 doc:
@@ -58,6 +58,7 @@ help:
 	@echo "---------------------------"
 	@echo "make verify    - Run fmt check and clippy"
 	@echo "make test      - Run all unit and integration tests"
+	@echo "make test-wasm - Run WASM specific integration tests in Node"
 	@echo "make wasm      - Build production WASM package (opt level z)"
 	@echo "make wasm-dev  - Build development WASM package"
 	@echo "make doc       - Generate and open documentation"

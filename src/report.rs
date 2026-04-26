@@ -42,89 +42,84 @@ pub struct Palettes {
     pub raw: Vec<ColorEntry>,
 }
 
+pub struct ReportInputs<'a> {
+    pub clusters: &'a [Cluster],
+    pub rgb_pixels: &'a [RgbColor],
+    pub lab_pixels: &'a [LabColor],
+    pub width: u32,
+    pub height: u32,
+}
+
 pub fn build(
-    clusters: &[Cluster],
-    rgb_pixels: &[RgbColor],
-    lab_pixels: &[LabColor],
-    img_width: u32,
-    img_height: u32,
+    inputs: ReportInputs,
     analysis_time_ms: f64,
     warning: Option<String>,
 ) -> AnalysisReport {
-    let entries: Vec<ColorEntry> = clusters.iter().map(cluster_to_entry).collect();
-
+    let entries: Vec<ColorEntry> = inputs.clusters.iter().map(cluster_to_entry).collect();
     let dominant = entries[0].clone();
-
     let accent = pick_accent(&entries, &dominant);
 
-    let foreground_suggestion = accessibility::best_font_color(RgbColor::from_hex(&dominant.hex));
-
-    let background_suggestion = suggest_background(clusters[0].centroid);
-
-    let vibrant: Vec<_> = entries.iter().filter(|e| e.lch.c > 28.0).cloned().collect();
-    let muted: Vec<_> = entries.iter().filter(|e| e.lch.c < 15.0).cloned().collect();
-    let light: Vec<_> = entries.iter().filter(|e| e.lch.l > 80.0).cloned().collect();
-    let dark: Vec<_> = entries.iter().filter(|e| e.lch.l < 20.0).cloned().collect();
-
-    let accessibility = accent
-        .as_ref()
-        .map(|ac| {
-            accessibility::evaluate(
-                RgbColor::from_hex(&dominant.hex),
-                RgbColor::from_hex(&ac.hex),
-            )
-        })
-        .unwrap_or_else(|| {
-            accessibility::evaluate(
-                RgbColor::from_hex(&dominant.hex),
-                RgbColor::from_hex(&dominant.hex),
-            )
-        });
-
-    let no_accent_warning = accent.is_none().then_some(
-        "No perceptually distinct accent colour found (ΔE < 5 from dominant).".to_string(),
-    );
-
-    let merged_warning = match (warning, no_accent_warning) {
-        (Some(w), Some(a)) => Some(format!("{} {}", w, a)),
-        (w, a) => w.or(a),
-    };
-
-    let image_stats = metrics::compute(
-        rgb_pixels,
-        lab_pixels,
-        dominant.lch.h,
-        img_width,
-        img_height,
-    );
-
-    let base_lch = crate::types::LchColor {
-        l: dominant.lch.l,
-        c: dominant.lch.c,
-        h: dominant.lch.h,
-    };
-    let color_theory = color_theory::generate(base_lch);
-
+    let stats = metrics::compute(metrics::MetricsInputs {
+        rgb_pixels: inputs.rgb_pixels,
+        lab_pixels: inputs.lab_pixels,
+        dominant_hue: dominant.lch.h,
+        width: inputs.width,
+        height: inputs.height,
+    });
     AnalysisReport {
         main: MainPalette {
-            dominant,
-            accent,
-            background_suggestion,
-            foreground_suggestion,
+            dominant: dominant.clone(),
+            accent: accent.clone(),
+            background_suggestion: suggest_background(inputs.clusters[0].centroid),
+            foreground_suggestion: accessibility::best_font_color(RgbColor::from_hex(
+                &entries[0].hex,
+            )),
         },
-        palettes: Palettes {
-            vibrant,
-            muted,
-            light,
-            dark,
-            raw: entries,
-        },
-        accessibility,
-        image_stats,
-        color_theory,
+        palettes: build_palettes(&entries),
+        accessibility: build_accessibility(&dominant, &accent),
+        image_stats: stats,
+        color_theory: build_theory(&dominant),
         analysis_time_ms,
-        pixels_analyzed: lab_pixels.len(),
-        warning: merged_warning,
+        pixels_analyzed: inputs.lab_pixels.len(),
+        warning: merge_warnings(warning, accent.is_none()),
+    }
+}
+
+fn build_palettes(entries: &[ColorEntry]) -> Palettes {
+    Palettes {
+        vibrant: entries.iter().filter(|e| e.lch.c > 28.0).cloned().collect(),
+        muted: entries.iter().filter(|e| e.lch.c < 15.0).cloned().collect(),
+        light: entries.iter().filter(|e| e.lch.l > 80.0).cloned().collect(),
+        dark: entries.iter().filter(|e| e.lch.l < 20.0).cloned().collect(),
+        raw: entries.to_vec(),
+    }
+}
+
+fn build_accessibility(dom: &ColorEntry, acc: &Option<ColorEntry>) -> AccessibilityReport {
+    acc.as_ref()
+        .map(|ac| {
+            accessibility::evaluate(RgbColor::from_hex(&dom.hex), RgbColor::from_hex(&ac.hex))
+        })
+        .unwrap_or_else(|| {
+            accessibility::evaluate(RgbColor::from_hex(&dom.hex), RgbColor::from_hex(&dom.hex))
+        })
+}
+
+fn build_theory(dom: &ColorEntry) -> ColorTheory {
+    color_theory::generate(crate::types::LchColor {
+        l: dom.lch.l,
+        c: dom.lch.c,
+        h: dom.lch.h,
+    })
+}
+
+fn merge_warnings(base: Option<String>, no_accent: bool) -> Option<String> {
+    let accent_w = no_accent.then_some(
+        "No perceptually distinct accent colour found (ΔE < 5 from dominant).".to_string(),
+    );
+    match (base, accent_w) {
+        (Some(w), Some(a)) => Some(format!("{} {}", w, a)),
+        (w, a) => w.or(a),
     }
 }
 
@@ -171,7 +166,9 @@ fn pick_accent(entries: &[ColorEntry], dominant: &ColorEntry) -> Option<ColorEnt
         .max_by(|a, b| {
             let score_a = accent_score(a, dom_lab);
             let score_b = accent_score(b, dom_lab);
-            score_a.partial_cmp(&score_b).unwrap()
+            score_a
+                .partial_cmp(&score_b)
+                .unwrap_or(std::cmp::Ordering::Equal)
         })
         .cloned()
 }

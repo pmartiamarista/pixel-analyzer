@@ -13,6 +13,13 @@ pub fn sample_pixels(pixels: &[u8], width: u32, height: u32, quality: Quality) -
     stratified_sample(&ds_pixels, ds_width, ds_height, quality.sample_fraction())
 }
 
+struct CellBounds {
+    pub x0: usize,
+    pub x1: usize,
+    pub y0: usize,
+    pub y1: usize,
+}
+
 fn downsample(src: &[u8], src_w: u32, src_h: u32, max_dim: u32) -> (Vec<u8>, u32, u32) {
     if src_w <= max_dim && src_h <= max_dim {
         return (src.to_vec(), src_w, src_h);
@@ -54,7 +61,7 @@ fn stratified_sample(pixels: &[u8], width: u32, height: u32, fraction: f32) -> V
             let y0 = (gy * h) / grid_n;
             let y1 = ((gy + 1) * h) / grid_n;
 
-            let cell_pixels: Vec<RgbColor> = collect_cell(pixels, w, x0, x1, y0, y1);
+            let cell_pixels: Vec<RgbColor> = collect_cell(pixels, w, CellBounds { x0, x1, y0, y1 });
             if cell_pixels.is_empty() {
                 continue;
             }
@@ -73,17 +80,10 @@ fn stratified_sample(pixels: &[u8], width: u32, height: u32, fraction: f32) -> V
     result
 }
 
-fn collect_cell(
-    pixels: &[u8],
-    width: usize,
-    x0: usize,
-    x1: usize,
-    y0: usize,
-    y1: usize,
-) -> Vec<RgbColor> {
+fn collect_cell(pixels: &[u8], width: usize, b: CellBounds) -> Vec<RgbColor> {
     let mut out = Vec::new();
-    for y in y0..y1 {
-        for x in x0..x1 {
+    for y in b.y0..b.y1 {
+        for x in b.x0..b.x1 {
             let idx = (y * width + x) * 4;
             let alpha = pixels[idx + 3];
             if alpha >= 128 {

@@ -1,11 +1,30 @@
 # Changelog
 
-## [0.1.7] - 2026-04-25
+## [0.1.8]
+### Fixed
+- [fix]: implement exact dependency pinning for `png`, `zune-jpeg`, and `image-webp` in `Cargo.toml` to ensure stable WASM ABI
+- [fix]: implement pixel scanning for WebP in `decode_webp` to correctly detect grayscale images and emit warnings
+- [fix]: remove all `unwrap()` calls in `src/report.rs` and `src/kmeans.rs` for absolute panic-safety
+
+### Added
+- [test]: implement `tests/wasm.rs` using `#[wasm_bindgen_test]` to verify `analyze()` lifecycle in Node.js
+- [test]: add edge case tests for `RgbColor::from_hex`
+- [test]: add direct tests for `Warm`, `Cool`, `Neutral` hue group classifications in `metrics.rs`
+- [test]: add minimal valid byte tests for PNG, JPEG, WebP format validation in `tests/decoder.rs`
+- [ci]: enhance `.github/workflows/static.yml` to explicitly log final optimized WASM binary size using `$GITHUB_STEP_SUMMARY`
+
+### Refactored
+- [refactor]: perform repository-wide audit to enforce **Unified Engineering Rules** (Zero-Comments, Zero-Unwraps, SoC)
+- [refactor]: enforce **Max 4 Parameters** rule by introducing `ReportInputs` and `MetricsInputs` structs
+- [refactor]: enforce **Max 40 Lines** per function rule; split monolithic `build()` and `decode_jpeg()` functions
+- [refactor]: extract test setup in `tests/report.rs` and `tests/metrics.rs` into modular helpers to meet length constraints
+
+## [0.1.7]
 
 ### Fixed
 - [fix]: add missing `wasm-bindgen-test` to dev-dependencies to resolve CI failures in WASM test jobs (M-06)
 
-## [0.1.6] - 2026-04-25
+## [0.1.6]
 
 ### Fixed
 - [fix]: resolve critical type contract mismatch in `bindings.ts`; `AccessibilityReport` fields now correctly match Rust struct (`is_aa_normal`, `is_aaa_normal`, `recommended_font_color`) (F-01, OE-5)
@@ -27,12 +46,12 @@
 ### Performance
 - [perf]: enable `wasm-opt` in `Cargo.toml` with optimized flags (`-Oz`) for binary size reduction (F-02, N-02)
 
-## [0.1.5] - 2026-04-25
+## [0.1.5]
 
 ### Added
 - [feat]: strongly-typed WASM bindings via `bindings.ts` injection (initial implementation).
 
-## [0.1.4] - 2026-04-25
+## [0.1.4]
 
 ### Refactored
 - [refactor]: extract `src/decoder.rs` as dedicated ingestion module; `lib.rs` now calls `decoder::decode()` and has zero knowledge of image format specifics
@@ -47,7 +66,7 @@
 - [fix]: update OG-5 in `docs/DETA.md` from 200 KB to 500 KB to reflect the measured optimised binary
 - [fix]: refactor `From<AnalyzerError> for JsValue` and `report` match logic to resolve `rust-analyzer` type inference ambiguity and false-positive shadowing warnings
 
-## [0.1.3] - 2026-04-24
+## [0.1.3]
 
 ### Fixed
 - [fix]: refactor `pick_accent()` to return `Option<ColorEntry>` with ΔE≥5 filter; eliminates monochromatic-image bug where accent was identical to dominant (C-02)
@@ -66,7 +85,7 @@
 - [feat]: add WASM binary size gate to `build-wasm` job; exits with code 1 if `pixel_analyzer_bg.wasm` exceeds 200 KB (C-01)
 - [fix]: include `**/Cargo.toml` in Cargo cache key hash for both `quality` and `test` jobs (M-05)
 
-## [0.1.2] - 2026-04-23
+## [0.1.2]
 
 ### Changed
 - Migrated project to Rust 2024 Edition.

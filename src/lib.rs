@@ -111,11 +111,13 @@ fn run_pipeline(bytes: Vec<u8>, config: AnalysisConfig) -> Result<JsValue, Analy
     let elapsed_ms = now_ms() - start_ms;
 
     let report = report::build(
-        &clusters,
-        &rgb_pixels,
-        &lab_pixels,
-        img_width,
-        img_height,
+        report::ReportInputs {
+            clusters: &clusters,
+            rgb_pixels: &rgb_pixels,
+            lab_pixels: &lab_pixels,
+            width: img_width,
+            height: img_height,
+        },
         elapsed_ms,
         warning,
     );

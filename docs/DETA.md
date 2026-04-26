@@ -51,6 +51,7 @@ The development is guided by five core pillars:
 - **SOLID:** Each module has a single responsibility (color transformation, sampling, clustering, metrics, reporting). They are independent and testable in isolation.
 - **YAGNI:** Advanced categorization, ICC profiles, and GIF/AVIF support are excluded from the v1.0 core and marked as extensible modules.
 - **Clean Code:** Semantic naming in Rust (`delta_e`, `stratified_sample`, `kmeans_plus_plus`), explicit data contracts, and documentation containing bibliographic references.
+- **Strict Compliance:** Adherence to the **40-Line Function Limit** and **4-Parameter Limit** (enforced via struct-grouping) to ensure readability and modularity.
 - **No Non-Doc Comments:** Inline (`//`) and block (`/* */`) comments are forbidden. Documentation must reside exclusively in `///` doc-comments or external markdown files.
 
 ---
@@ -301,7 +302,8 @@ pixel-analyzer/
     ├── kmeans.rs
     ├── metrics.rs
     ├── report.rs
-    └── sampler.rs
+    ├── sampler.rs
+    └── wasm.rs                 # NEW: Node.js WASM integration lifecycle tests
 ```
 
 ---

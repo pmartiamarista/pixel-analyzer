@@ -107,3 +107,25 @@ fn complementary_hex_hue_within_tolerance_of_expected() {
         expected_h,
     );
 }
+
+#[test]
+fn rgb_color_from_hex_edge_cases() {
+    let c = RgbColor::from_hex("");
+    assert_eq!(c, RgbColor { r: 0, g: 0, b: 0 });
+
+    let c = RgbColor::from_hex("#FFF");
+    assert_eq!(c, RgbColor { r: 0, g: 0, b: 0 });
+
+    let c = RgbColor::from_hex("FFFFFF");
+    assert_eq!(
+        c,
+        RgbColor {
+            r: 255,
+            g: 255,
+            b: 255
+        }
+    );
+
+    let c = RgbColor::from_hex("#GGGGGG");
+    assert_eq!(c, RgbColor { r: 0, g: 0, b: 0 });
+}

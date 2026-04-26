@@ -7,7 +7,7 @@ pub struct RgbColor {
     pub b: u8,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum HueGroup {
     Warm,

@@ -92,33 +92,36 @@ fn decode_jpeg(bytes: &[u8]) -> Result<(Vec<u8>, u32, u32, Option<String>), Anal
         .checked_div(pixel_count)
         .ok_or_else(|| AnalyzerError::DecodingFailed("JPEG has zero dimensions".to_string()))?;
     let is_grey = bytes_per_pixel == 1;
-    let rgba = match bytes_per_pixel {
+    let rgba = to_rgba(pixels, bytes_per_pixel)?;
+    let warning =
+        is_grey.then(|| "Image is greyscale; colour palette will be achromatic.".to_string());
+    Ok((rgba, info.width as u32, info.height as u32, warning))
+}
+
+fn to_rgba(pixels: Vec<u8>, channels: usize) -> Result<Vec<u8>, AnalyzerError> {
+    let count = pixels.len() / channels;
+    match channels {
         1 => {
-            let mut out = Vec::with_capacity(pixel_count * 4);
+            let mut out = Vec::with_capacity(count * 4);
             for &g in &pixels {
                 out.extend_from_slice(&[g, g, g, 255]);
             }
-            out
+            Ok(out)
         }
         3 => {
-            let mut out = Vec::with_capacity(pixel_count * 4);
+            let mut out = Vec::with_capacity(count * 4);
             for chunk in pixels.chunks_exact(3) {
                 out.extend_from_slice(chunk);
                 out.push(255);
             }
-            out
+            Ok(out)
         }
-        4 => pixels,
-        _ => {
-            return Err(AnalyzerError::DecodingFailed(format!(
-                "Unexpected JPEG channel count: {}",
-                bytes_per_pixel
-            )));
-        }
-    };
-    let warning =
-        is_grey.then(|| "Image is greyscale; colour palette will be achromatic.".to_string());
-    Ok((rgba, info.width as u32, info.height as u32, warning))
+        4 => Ok(pixels),
+        _ => Err(AnalyzerError::DecodingFailed(format!(
+            "Unexpected channel count: {}",
+            channels
+        ))),
+    }
 }
 
 fn decode_webp(bytes: &[u8]) -> Result<(Vec<u8>, u32, u32, Option<String>), AnalyzerError> {
@@ -142,5 +145,10 @@ fn decode_webp(bytes: &[u8]) -> Result<(Vec<u8>, u32, u32, Option<String>), Anal
         }
         out
     };
-    Ok((rgba, width, height, None))
+
+    let is_grey = rgba.chunks_exact(4).all(|c| c[0] == c[1] && c[1] == c[2]);
+    let warning =
+        is_grey.then(|| "Image is greyscale; colour palette will be achromatic.".to_string());
+
+    Ok((rgba, width, height, warning))
 }

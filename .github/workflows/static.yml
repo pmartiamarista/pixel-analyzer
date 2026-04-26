@@ -102,6 +102,7 @@ jobs:
           [ -f "$WASM" ] || (echo "WASM artifact not found" && exit 1)
           SIZE=$(du -k "$WASM" | cut -f1)
           echo "WASM size: ${SIZE} KB"
+          echo "## 📦 WASM Binary Size: ${SIZE} KB" >> $GITHUB_STEP_SUMMARY
           [ "$SIZE" -le 500 ] || (echo "Binary exceeds 500 KB limit: ${SIZE} KB" && exit 1)
 
   publish:

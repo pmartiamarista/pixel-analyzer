@@ -80,7 +80,7 @@ fn assign(pixels: &[LabColor], centroids: &[LabColor]) -> Vec<usize> {
                 .iter()
                 .enumerate()
                 .map(|(i, c)| (i, px.distance_sq(*c)))
-                .min_by(|a, b| a.1.partial_cmp(&b.1).unwrap())
+                .min_by(|a, b| a.1.partial_cmp(&b.1).unwrap_or(std::cmp::Ordering::Equal))
                 .map(|(i, _)| i)
                 .unwrap_or(0)
         })

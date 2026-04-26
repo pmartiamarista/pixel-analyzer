@@ -10,18 +10,20 @@ pub struct ImageStats {
     pub orientation: Orientation,
 }
 
-pub fn compute(
-    rgb_pixels: &[RgbColor],
-    lab_pixels: &[LabColor],
-    dominant_hue: f32,
-    img_width: u32,
-    img_height: u32,
-) -> ImageStats {
-    let brightness = mean_brightness(lab_pixels);
-    let colorfulness = hasler_suesstrunk(rgb_pixels);
-    let entropy = shannon_entropy(lab_pixels);
-    let dominant_hue_group = classify_hue_group(dominant_hue);
-    let orientation = classify_orientation(img_width, img_height);
+pub struct MetricsInputs<'a> {
+    pub rgb_pixels: &'a [RgbColor],
+    pub lab_pixels: &'a [LabColor],
+    pub dominant_hue: f32,
+    pub width: u32,
+    pub height: u32,
+}
+
+pub fn compute(inputs: MetricsInputs) -> ImageStats {
+    let brightness = mean_brightness(inputs.lab_pixels);
+    let colorfulness = hasler_suesstrunk(inputs.rgb_pixels);
+    let entropy = shannon_entropy(inputs.lab_pixels);
+    let dominant_hue_group = classify_hue_group(inputs.dominant_hue);
+    let orientation = classify_orientation(inputs.width, inputs.height);
 
     ImageStats {
         brightness: (brightness * 100.0).round() / 100.0,
