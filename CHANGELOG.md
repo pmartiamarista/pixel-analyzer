@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.1.9]
+
+### Added
+- [ci]: replace NPM publishing pipeline with automated GitHub Pages deployment triggered on `main`
+- [feat]: add `demo/` Vite 8 application with `make demo-install`, `make demo-dev`, `make demo-build` targets
+- [feat]: add `build` target to `Makefile` as alias for `wasm`
+
+### Refactored
+- [refactor]: restructure `README.md` to prioritize Quick Start and expand API Reference per **README Rules**
+- [refactor]: move Engineering Rules to `docs/DETA.md §1` and renumber subsequent sections per **Repo Documentation Rules**
+- [refactor]: add Lifecycle call-order section to `docs/API.md` per **Repo Documentation Rules**
+- [refactor]: remove banned date labels from `CHANGELOG.md` version headers (`[0.1.0]`, `[0.1.1]`)
+- [refactor]: update `.gitignore` to replace stale `frontend/` references with `demo/node_modules/` and `demo/dist/`
+
+
 ## [0.1.8]
 ### Fixed
 - [fix]: implement exact dependency pinning for `png`, `zune-jpeg`, and `image-webp` in `Cargo.toml` to ensure stable WASM ABI
@@ -51,8 +66,6 @@
 ### Added
 - [feat]: strongly-typed WASM bindings via `bindings.ts` injection (initial implementation).
 
-## [0.1.4]
-
 ### Refactored
 - [refactor]: extract `src/decoder.rs` as dedicated ingestion module; `lib.rs` now calls `decoder::decode()` and has zero knowledge of image format specifics
 - [refactor]: decompose monolithic `tests/color_conversion.rs` into modular files (`color.rs`, `accessibility.rs`, `kmeans.rs`, etc.) in the `tests/` directory
@@ -99,7 +112,7 @@
 - Implemented `doc` target in `Makefile` for auto-generating documentation.
 - Integrated `repository` and `license` metadata in `Cargo.toml`.
 
-## [0.1.1] — 2026-04-23
+## [0.1.1]
 
 ### Compliance & Refactoring
 - [refactor]: delete orphaned root-level .rs files; src/ is canonical
@@ -114,7 +127,7 @@
 - [test]: replace placeholder integration test with 14 real colour-pipeline tests
 - [refactor]: remove placeholder repository URL from Cargo.toml
 
-## [0.1.0] — 2026-04-10
+## [0.1.0]
 
 ### Initial Implementation
 - [feat]: WASM entry point — init / analyze / terminate lifecycle

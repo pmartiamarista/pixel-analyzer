@@ -18,22 +18,6 @@
 *.so
 *.dylib
 
-# Testing
-*.profraw
-*.profdata
-
-# Documentation
-/doc/
-
-# Backup files
-*.bak
-*.backup
-*.tmp
-
-# OS specific
-Thumbs.db
-.directory
-
 # Environment variables
 .env
 .env.local
@@ -44,13 +28,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Frontend build artifacts
-frontend/public/*.js
-frontend/public/*.wasm
-frontend/public/*.d.ts
-frontend/public/*.map
-!frontend/public/index.html
-frontend/dist/
+# Demo App
+demo/node_modules/
+demo/dist/
 
 # WASM build artifacts
 /pkg/
@@ -60,5 +40,5 @@ frontend/dist/
 logs
 *.log
 
-
+# Agents
 .agents/

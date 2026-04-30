@@ -2,6 +2,15 @@
 
 This document provides a detailed reference for the `pixel-analyzer` JavaScript/TypeScript API.
 
+## Lifecycle
+The mandatory call order for using the library is:
+
+1. `init()` — initialise WASM memory. Must be called once per session.
+2. `analyze(buffer, options)` — run pipeline. Returns `AnalysisReport`.
+3. `terminate()` — free WASM memory. Optional but recommended for SPAs.
+
+Calling `analyze()` before `init()` will result in an `Error: WASM module not initialized`.
+
 ## Core Functions
 
 ### `init(): Promise<void>`

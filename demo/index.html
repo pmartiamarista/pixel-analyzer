@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Analyze image color palettes, WCAG contrast ratios, and colorfulness metrics — powered by Rust and WebAssembly.">
+  <title>Pixel Analyzer | Perceptual Color Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <a href="#main" class="skip-link">Skip to main content</a>
+  <div id="app">
+    <header>
+      <h1>Pixel Analyzer</h1>
+      <p class="subtitle">Perceptual Color Intelligence — Rust &amp; WASM</p>
+    </header>
+
+    <main id="main" tabindex="-1">
+      <div class="input-tabs" role="tablist" aria-label="Image source">
+        <button type="button" class="tab-btn active" data-tab="file" role="tab" aria-selected="true" aria-controls="panel-file" id="tab-file">File</button>
+        <button type="button" class="tab-btn" data-tab="url" role="tab" aria-selected="false" aria-controls="panel-url" id="tab-url">URL</button>
+        <button type="button" class="tab-btn" data-tab="paste" role="tab" aria-selected="false" aria-controls="panel-paste" id="tab-paste">Paste</button>
+      </div>
+
+      <section class="upload-zone active-panel" id="panel-file" role="tabpanel" aria-labelledby="tab-file">
+        <input type="file" id="file-input" accept="image/*" aria-label="Upload image file" hidden>
+        <span class="icon" aria-hidden="true">📸</span>
+        <p>Drop an image here or <span>browse</span></p>
+        <p class="small">JPEG · PNG · WebP</p>
+      </section>
+
+      <section class="upload-zone" id="panel-url" role="tabpanel" aria-labelledby="tab-url">
+        <label for="url-input" class="visually-hidden">Image URL</label>
+        <input type="text" id="url-input" class="modern-input" placeholder="https://example.com/image.jpg" autocomplete="off">
+        <p class="small">Paste a URL and press Enter</p>
+      </section>
+
+      <section class="upload-zone" id="panel-paste" role="tabpanel" aria-labelledby="tab-paste" tabindex="0">
+        <span class="icon" aria-hidden="true">📋</span>
+        <p>Click here then press <span>Ctrl+V</span></p>
+        <p class="small">Paste images directly from clipboard</p>
+        <div id="paste-status" class="status-msg" aria-live="polite"></div>
+      </section>
+
+      <div id="global-status" class="status-msg" role="status" aria-live="polite" aria-atomic="true"></div>
+
+      <section class="options-bar" aria-label="Analysis options">
+        <div class="option">
+          <label for="max-colors">Colors</label>
+          <input type="number" id="max-colors" min="2" max="16" value="8">
+        </div>
+        <div class="option">
+          <label for="quality">Quality</label>
+          <select id="quality">
+            <option value="0">Draft</option>
+            <option value="1" selected>Balanced</option>
+            <option value="2">Precise</option>
+          </select>
+        </div>
+        <div class="option">
+          <label for="convergence">Convergence</label>
+          <input type="number" id="convergence" min="0.1" max="10" step="0.1" value="1.0">
+        </div>
+        <button id="analyze-btn" type="button" class="primary-btn" aria-label="Analyze the selected image" aria-busy="false">
+          <span id="btn-label">Analyze</span>
+          <span id="btn-spinner" class="btn-spinner hidden" aria-hidden="true"></span>
+        </button>
+      </section>
+
+      <div id="results-area" class="hidden">
+        <div id="analysis-loader" class="analysis-loader hidden" role="status" aria-live="polite" tabindex="-1">
+          <div class="loader-ring"></div>
+          <p class="loader-text">Analyzing image…</p>
+          <p class="loader-sub">Running K-Means++ in WASM</p>
+        </div>
+
+        <section id="results" class="results-container hidden" aria-label="Analysis results">
+          <div class="preview-side">
+            <div class="preview-card">
+              <img id="image-preview" alt="Selected image preview">
+            </div>
+            <div class="card">
+              <p class="card-label">Image Stats</p>
+              <div id="image-stats" class="stats-list"></div>
+            </div>
+          </div>
+
+          <div class="analysis-side">
+            <div class="card">
+              <div class="stats-header">
+                <div class="stat">
+                  <span class="stat-label">Entropy</span>
+                  <span id="entropy-value" class="stat-value" aria-live="polite">—</span>
+                </div>
+                <div class="stat">
+                  <span class="stat-label">Time</span>
+                  <span id="timing-value" class="stat-value" aria-live="polite">—</span>
+                </div>
+              </div>
+
+              <div class="focus-colors">
+                <div>
+                  <p class="card-label">Dominant</p>
+                  <div id="dominant-swatch"></div>
+                </div>
+                <div>
+                  <p class="card-label">Accent</p>
+                  <div id="accent-swatch"></div>
+                </div>
+              </div>
+
+              <p class="card-label">Vibrant</p>
+              <div id="vibrant-palette" class="palette-grid"></div>
+
+              <p class="card-label">Muted</p>
+              <div id="muted-palette" class="palette-grid"></div>
+
+              <div class="data-grid">
+                <div>
+                  <p class="card-label">Accessibility</p>
+                  <div id="accessibility-info" class="data-card"></div>
+                </div>
+                <div>
+                  <p class="card-label">Color Theory</p>
+                  <div id="theory-info" class="data-card"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <p>Built with Rust, WebAssembly &amp; CIELAB</p>
+    </footer>
+  </div>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

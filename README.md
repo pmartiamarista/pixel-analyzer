@@ -1,46 +1,20 @@
 # pixel-analyzer
-> High-performance perceptual colour intelligence for the browser, powered by Rust & WebAssembly.
-
-`pixel-analyzer` extracts meaningful colour palettes and image-level metrics entirely in the [CIELAB](https://en.wikipedia.org/wiki/CIELAB_color_space) perceptual colour space. It uses a refined **K-Means++** clustering engine with ΔE (CIE 1976) convergence to ensure that extracted colours are perceptually distinct and accurate.
-
-## Core Features
-- **All-in-Rust Pipeline**: Decoding, sampling, transformation, and clustering happen entirely in WASM.
-- **Perceptual Accuracy**: All math operates in CIELAB/CIELCh space, not RGB.
-- **Stratified Sampling**: A 2-stage spatial sampler ensures small but vibrant details (like logos) aren't missed.
-- **Accessibility**: Built-in WCAG 2.1 contrast ratio calculations and font colour recommendations.
-- **Advanced Metrics**: Visual entropy (Shannon), colorfulness (Hasler-Suesstrunk), and brightness.
-- **Harmonies**: Automatic generation of complementary, triadic, and analogous colour schemes.
-
-## Installation & Build
-
-```bash
-# Clone and build for production
-wasm-pack build --target web --release
-```
-
-The resulting `pkg/` directory contains the compiled `.wasm` (< 500 KB) and JS bindings ready for integration.
+WASM library that extracts color palettes, WCAG contrast ratios, and colorfulness metrics from PNG, JPEG, and WebP images — runs in browser and Node.js.
 
 ## Quick Start
 
-```javascript
-import init, { analyze, AnalysisOptions, Quality } from './pkg/pixel_analyzer.js';
+```ts
+import init, { analyze } from './pkg/pixel_analyzer.js';
 
 async function run() {
     await init();
-
-    const response = await fetch('image.jpg');
-    const bytes = new Uint8Array(await response.arrayBuffer());
-
-    const options = AnalysisOptions.defaults();
-
-    const report = await analyze(bytes, options);
+    const bytes = new Uint8Array(await (await fetch('image.jpg')).arrayBuffer());
+    const report = await analyze(bytes);
+    
     console.log('Dominant:', report.main.dominant.hex);
-
     if (report.main.accent) {
         console.log('Accent:', report.main.accent.hex);
     }
-
-    console.log('Vibrant Palette:', report.palettes.vibrant);
 }
 ```
 
@@ -51,63 +25,66 @@ Initialises the WASM module. Must be called once before any other function.
 
 ### `analyze(data: Uint8Array, options?: AnalysisOptions): Promise<AnalysisReport>`
 Runs the full analysis pipeline on the provided image buffer.
-- `data`: Raw bytes of a PNG, JPEG, or WebP image.
-- `options`: Optional configuration object.
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `data` | `Uint8Array` | Yes | Raw bytes of PNG, JPEG, or WebP image |
+| `options` | `AnalysisOptions` | No | Configuration for clusters and sampling |
+
+**Returns:** `Promise<AnalysisReport>`
 
 ### `terminate(): void`
-Optional teardown hook for explicitly releasing resources in SPA environments.
+Explicitly releases resources. Useful for SPAs where the module might be re-loaded.
 
-## AnalysisOptions
+### `AnalysisOptions` (Type)
 
-| Option | Type | Range | Default | Description |
-|---|---|---|---|---|
-| `max_colors` | `number` | 2–16 | 5 | Max number of clusters to extract. |
-| `quality` | `Quality` | Draft/Balanced/Precise | Balanced | Controls sampling fraction (25%/50%/100%). |
-| `convergence` | `number` | > 0 | 1.0 | K-Means ΔE early-exit threshold. |
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `max_colors` | `number` | `5` | Clusters to extract (2 to 16) |
+| `quality` | `Quality` | `Balanced` | Sampling density: `Draft` / `Balanced` / `Precise` |
+| `convergence` | `number` | `1.0` | Delta-E threshold for K-Means early-exit |
 
-## Supported Formats
-Pure Rust decoding support for:
-- PNG
-- JPEG
-- WebP
+### `AnalysisReport` (Type)
+
+| Field | Type | Description |
+|---|---|---|
+| `main` | `MainPalette` | Semantic hierarchy (dominant, accent) |
+| `palettes` | `Palettes` | Filtered lists (vibrant, muted, light, dark) |
+| `accessibility` | `AccessibilityReport` | WCAG 2.1 contrast and font recommendations |
+| `image_stats` | `ImageStats` | Brightness, colorfulness, entropy, etc. |
+| `color_theory` | `ColorTheory` | Harmonies (complementary, triadic, analogous) |
+| `analysis_time_ms`| `number` | Execution time in milliseconds |
 
 ## Pipeline Overview
-1. **Validation**: Config and buffer integrity checks.
-2. **Decoding**: Fast Magic-byte detection and memory loading.
-3. **Sampling**: Adaptive downscaling + 32×32 stratified grid selection.
-4. **Transform**: sRGB → CIE XYZ D65 → CIELAB conversion.
-5. **Clustering**: K-Means++ with ΔE (CIE 1976) convergence.
-6. **Reporting**: Semantic palette classification & metric computation.
-7. **Serialisation**: Efficient conversion to JS-compatible JSON.
+Buffer validation → format detection (`decoder.rs`)
+  → pixel decode + RGBA expansion
+  → spatial downsample (32×32 stratified grid)
+  → K-Means++ clustering (ΔE convergence)
+  → palette assembly + accent selection
+  → WCAG contrast + font color recommendation
+  → report serialisation → JsValue
 
 ## Development
 
-Use the provided `Makefile` for standard development tasks:
+Prerequisites: Rust (v1.85+), `wasm-pack`, Node.js.
 
 ```bash
-# Run all quality checks (fmt + clippy)
-make verify
+### Build
+make wasm          # optimised WASM build (< 500 KB)
+make wasm-dev      # development build (no wasm-opt)
 
-# Run unit and integration tests
-make test
+### Test
+make test          # Rust unit + integration suite
+make test-wasm     # wasm-pack test via Node.js
 
-# Run WASM specific integration tests
-make test-wasm
-
-# Generate and open documentation
-make doc
-
-# Clean build artifacts
-make clean
+### Verify
+make verify        # clippy + fmt + test in sequence
 ```
 
 ## Documentation
-
-For deeper dives into the technical implementation and the full API specification, refer to the following documents:
-
-- **[API Reference](docs/API.md)**: Detailed TypeScript definitions and function signatures.
-- **[Technical Specification (DETA)](docs/DETA.md)**: Mathematical foundations, system architecture, and clustering logic.
-- **[Changelog](CHANGELOG.md)**: Per-version history of all changes.
+- **[Technical Specification (DETA)](docs/DETA.md)**: Engineering rules and architecture.
+- **[API Contract (API.md)](docs/API.md)**: Exhaustive type definitions.
+- **[Changelog](CHANGELOG.md)**: Release history.
 
 ## License
 MIT

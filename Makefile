@@ -1,7 +1,7 @@
 # pixel-analyzer Makefile
 # Standardized build and maintenance targets
 
-.PHONY: all build wasm wasm-dev test test-wasm lint fmt clippy clean check verify doc help
+.PHONY: all build wasm wasm-dev test test-wasm lint fmt clippy clean check verify doc help demo-install demo-dev demo-build
 
 # Configuration
 CARGO      := cargo
@@ -27,6 +27,8 @@ fmt:
 	@$(CARGO) fmt
 
 # Production WASM Build
+build: wasm
+
 wasm:
 	@$(WASM_PACK) build $(TARGET_WEB) --release
 	@echo "Injecting publishConfig into pkg/package.json..."
@@ -51,6 +53,18 @@ doc:
 clean:
 	@$(CARGO) clean
 	@rm -rf pkg
+	@rm -rf demo/dist
+	@rm -rf demo/node_modules
+
+# Demo Management
+demo-install:
+	@cd demo && npm install
+
+demo-dev: wasm-dev
+	@cd demo && npm run dev
+
+demo-build: wasm
+	@cd demo && npm run build
 
 # Utility HELP
 help:
@@ -59,10 +73,14 @@ help:
 	@echo "make verify    - Run fmt check and clippy"
 	@echo "make test      - Run all unit and integration tests"
 	@echo "make test-wasm - Run WASM specific integration tests in Node"
+	@echo "make build     - Alias for wasm"
 	@echo "make wasm      - Build production WASM package (opt level z)"
 	@echo "make wasm-dev  - Build development WASM package"
-	@echo "make doc       - Generate and open documentation"
-	@echo "make clean     - Remove build artifacts and pkg folder"
+	@echo "make doc          - Generate and open documentation"
+	@echo "make clean        - Remove build artifacts, pkg, and demo artifacts"
+	@echo "make demo-install - Install demo dependencies"
+	@echo "make demo-dev     - Build dev WASM and start demo dev server"
+	@echo "make demo-build   - Build production WASM and demo dist"
 	@echo ""
 	@echo "Note: If wasm-pack fails due to target errors, ensure wasm32 is installed:"
 	@echo "rustup target add wasm32-unknown-unknown"
