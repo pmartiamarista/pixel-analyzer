@@ -1,5 +1,17 @@
 # Changelog — pixel-analyzer Demo
 
+## [0.0.2]
+
+### Added
+- [feat]: implement comprehensive WCAG 2.1 accessibility matrix (AA/AAA × Normal/Large text)
+- [feat]: implement live legibility preview using dominant/accent color combinations
+- [feat]: add descriptive footnotes for WCAG threshold definitions and Large Text criteria
+- [docs]: create `docs/FRONTEND.md` covering application architecture and WCAG panel logic
+
+### Accessibility
+- [a11y]: implement `role="list/listitem"` and dynamic `aria-label` values for the WCAG compliance matrix
+- [a11y]: implement `aria-label` and `aria-hidden="false"` for the legibility preview container
+
 ## [0.0.1]
 
 ### Added

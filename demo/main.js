@@ -207,11 +207,7 @@ function renderReport(report) {
         <p><strong>Pixels</strong>       <span>${report.pixels_analyzed.toLocaleString()}</span></p>
     `;
 
-    accessibilityInfo.innerHTML = `
-        <p><strong>Contrast</strong>  <span>${report.accessibility.contrast_ratio.toFixed(2)}:1</span></p>
-        <p><strong>WCAG AA</strong>   <span>${report.accessibility.is_aa_normal ? '✓ Pass' : '✗ Fail'}</span></p>
-        <p><strong>Font Color</strong> ${colorChip(report.accessibility.recommended_font_color)}</p>
-    `;
+    renderAccessibility(report);
 
     theoryInfo.innerHTML = `
         <p><strong>Complement</strong> ${colorChip(report.color_theory.complementary)}</p>
@@ -230,6 +226,61 @@ function renderReport(report) {
 
     hideLoader();
     results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderAccessibility(report) {
+    const ratio = report.accessibility.contrast_ratio;
+    const levels = [
+        { label: 'AA',  size: 'Normal', threshold: 4.5 },
+        { label: 'AA',  size: 'Large',  threshold: 3.0, footnote: '18pt+' },
+        { label: 'AAA', size: 'Normal', threshold: 7.0 },
+        { label: 'AAA', size: 'Large',  threshold: 4.5, footnote: '18pt+' },
+    ];
+
+    const domHex = report.main.dominant.hex;
+    const textHex = report.main.accent ? report.main.accent.hex : report.accessibility.recommended_font_color;
+
+    let gridHtml = '';
+    levels.forEach(level => {
+        const pass = ratio >= level.threshold;
+        const statusText = pass ? '✓ Pass' : '✗ Fail';
+        const ariaLabel = `WCAG ${level.label} ${level.size}: ${pass ? 'Pass' : 'Fail'}`;
+        
+        gridHtml += `
+            <div class="wcag-item ${pass ? 'pass' : 'fail'}" role="listitem" aria-label="${ariaLabel}">
+                <div class="wcag-level">
+                    ${level.label} ${level.size}
+                    <span class="wcag-threshold">≥ ${level.threshold.toFixed(1)}${level.footnote ? `, ${level.footnote}` : ''}</span>
+                </div>
+                <span class="wcag-status ${pass ? 'pass' : 'fail'}">${statusText}</span>
+            </div>
+        `;
+    });
+
+    accessibilityInfo.innerHTML = `
+        <div class="accessibility-report-grid">
+            <div class="contrast-summary">
+                <div class="contrast-value">
+                    <span class="contrast-number">${ratio.toFixed(2)}</span>
+                    <span class="contrast-ratio-label">:1 Contrast</span>
+                </div>
+                ${colorChip(report.accessibility.recommended_font_color)}
+            </div>
+
+            <div class="wcag-grid" role="list" aria-label="WCAG 2.1 Compliance Matrix">
+                ${gridHtml}
+            </div>
+
+            <div class="legibility-preview" style="background-color: ${domHex}; color: ${textHex}" aria-label="Legibility preview using dominant and accent colors">
+                <span class="preview-tag">Legibility Preview</span>
+                <p class="preview-text-large">Heavy Heading</p>
+                <p class="preview-text-normal">Standard body text for UI elements.</p>
+                <small class="wcag-note" aria-label="WCAG Large Text definition">
+                    WCAG Large Text: ≥ 18pt (24px) or ≥ 14pt bold
+                </small>
+            </div>
+        </div>
+    `;
 }
 
 function renderPalette(container, colors) {
