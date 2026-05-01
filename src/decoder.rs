@@ -146,7 +146,10 @@ fn decode_webp(bytes: &[u8]) -> Result<(Vec<u8>, u32, u32, Option<String>), Anal
         out
     };
 
-    let is_grey = rgba.chunks_exact(4).all(|c| c[0] == c[1] && c[1] == c[2]);
+    let is_grey = rgba
+        .chunks_exact(4)
+        .take(1024)
+        .all(|c| c[0] == c[1] && c[1] == c[2]);
     let warning =
         is_grey.then(|| "Image is greyscale; colour palette will be achromatic.".to_string());
 

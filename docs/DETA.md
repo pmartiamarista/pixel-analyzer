@@ -18,8 +18,7 @@ The following rules are the canonical engineering standards for this project.
 - Favor composition over inheritance; depend on abstractions/traits at module boundaries.
 
 ### 1.2 Code Quality & Formatting
-- **Zero internal comments**: No inline, block, or line comments (`//`, `/* */`). Clarity must come from naming and structure. 
-  - Exception: Public API documentation (`///`, `/** */`) is required for public-facing functions/types.
+- **Zero comments**: No inline, block, line, or doc comments (`//`, `/* */`, `///`). Clarity must come from naming and structure.
 - No file headers describing file name or purpose. No `TODO`, `FIXME`, or commented-out code.
 - **Naming**: Explain intent. No abbreviations, no generic suffixes like `data`/`info`/`util`.
 - **Structure**: Max 300 lines per file. Max 40 lines per function. Max 4 parameters per function.
@@ -46,7 +45,7 @@ The following rules are the canonical engineering standards for this project.
 
 ### 1.6 Dependencies
 - Justify every dependency. Prefer zero-dependency solutions for trivial needs.
-- Pin exact versions in applications; use semver ranges for libraries.
+- Pin exact versions in applications and in WASM library crates where ABI or decoding behaviour stability is required; use semver ranges otherwise.
 - No "maybe later" dependencies; remove unused dependencies immediately.
 
 ### 1.7 Security
@@ -123,11 +122,10 @@ Rules defined in Section 12 of the core engineering rules are applied here.
 
 ---
 
-## 4. Doc-Comment Policy
-- All public items (`pub fn`, `pub struct`, `pub enum`, all variants and fields) require a `///` doc-comment.
-- Doc-comments describe the item's contract: what it accepts, what it returns, what it cannot handle.
-- Doc-comments must not describe implementation details. Implementation is the code. The comment is the contract.
-- `//` and `/* */` are banned in `src/` per Rule 2.
+## 4. Documentation Policy
+- All API documentation lives in `docs/API.md` and `docs/DETA.md`. No inline documentation in `src/`.
+- `//`, `/* */`, and `///` are all banned in `src/`.
+- Names and structure must be self-explanatory without comments.
 
 ---
 
@@ -150,10 +148,6 @@ Rules defined in Section 12 of the core engineering rules are applied here.
 
 ---
 
-## 7. Mathematical Foundations
-(Refer to previous versions of DETA.md for exhaustive ΔE and K-Means++ formulas)
-
----
 
 ## 8. Bibliography
 1. CIE (1976). *Colorimetry*, Publication 15.2. Bureau Central de la CIE, Vienna.

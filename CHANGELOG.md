@@ -7,12 +7,19 @@
 - [feat]: add `demo/` Vite 8 application with `make demo-install`, `make demo-dev`, `make demo-build` targets
 - [feat]: add `build` target to `Makefile` as alias for `wasm`
 
+### Fixed
+- [fix]: sync `Cargo.toml` version to `0.1.9` to match `CHANGELOG.md` (F-03)
+- [fix]: add `#![cfg(target_arch = "wasm32")]` gate to `tests/wasm.rs` to prevent native-target link failure on `js_sys` symbols (F-02)
+
 ### Refactored
 - [refactor]: restructure `README.md` to prioritize Quick Start and expand API Reference per **README Rules**
 - [refactor]: move Engineering Rules to `docs/DETA.md §1` and renumber subsequent sections per **Repo Documentation Rules**
 - [refactor]: add Lifecycle call-order section to `docs/API.md` per **Repo Documentation Rules**
 - [refactor]: remove banned date labels from `CHANGELOG.md` version headers (`[0.1.0]`, `[0.1.1]`)
 - [refactor]: update `.gitignore` to replace stale `frontend/` references with `demo/node_modules/` and `demo/dist/`
+- [refactor]: cap WebP greyscale scan to first 1 024 pixels in `decode_webp` to bound detection cost per image size (F-01)
+- [refactor]: remove forward-reference stub from `docs/DETA.md §7`; mathematical foundations are covered by bibliography §8 (F-04)
+- [refactor]: amend `docs/DETA.md §1.6` to add WASM ABI pinning carve-out; aligns rule with implemented exact-pin strategy (F-06)
 
 
 ## [0.1.8]

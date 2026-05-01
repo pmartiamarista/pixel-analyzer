@@ -1,3 +1,5 @@
+#![cfg(target_arch = "wasm32")]
+
 use pixel_analyzer::analyze;
 use wasm_bindgen_test::*;
 
