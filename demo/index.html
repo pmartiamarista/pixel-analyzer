@@ -1,15 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Analyze image color palettes, WCAG contrast ratios, and colorfulness metrics — powered by Rust and WebAssembly.">
+  <meta name="description"
+    content="Analyze image color palettes, WCAG contrast ratios, and colorfulness metrics — powered by Rust and WebAssembly.">
   <title>Pixel Analyzer | Perceptual Color Intelligence</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;700&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="./style.css">
 </head>
+
 <body>
   <a href="#main" class="skip-link">Skip to main content</a>
   <div id="app">
@@ -20,9 +25,12 @@
 
     <main id="main" tabindex="-1">
       <div class="input-tabs" role="tablist" aria-label="Image source">
-        <button type="button" class="tab-btn active" data-tab="file" role="tab" aria-selected="true" aria-controls="panel-file" id="tab-file">File</button>
-        <button type="button" class="tab-btn" data-tab="url" role="tab" aria-selected="false" aria-controls="panel-url" id="tab-url">URL</button>
-        <button type="button" class="tab-btn" data-tab="paste" role="tab" aria-selected="false" aria-controls="panel-paste" id="tab-paste">Paste</button>
+        <button type="button" class="tab-btn active" data-tab="file" role="tab" aria-selected="true"
+          aria-controls="panel-file" id="tab-file">File</button>
+        <button type="button" class="tab-btn" data-tab="url" role="tab" aria-selected="false" aria-controls="panel-url"
+          id="tab-url">URL</button>
+        <button type="button" class="tab-btn" data-tab="paste" role="tab" aria-selected="false"
+          aria-controls="panel-paste" id="tab-paste">Paste</button>
       </div>
 
       <section class="upload-zone active-panel" id="panel-file" role="tabpanel" aria-labelledby="tab-file">
@@ -34,7 +42,8 @@
 
       <section class="upload-zone" id="panel-url" role="tabpanel" aria-labelledby="tab-url">
         <label for="url-input" class="visually-hidden">Image URL</label>
-        <input type="text" id="url-input" class="modern-input" placeholder="https://example.com/image.jpg" autocomplete="off">
+        <input type="text" id="url-input" class="modern-input" placeholder="https://example.com/image.jpg"
+          autocomplete="off">
         <p class="small">Paste a URL and press Enter</p>
       </section>
 
@@ -64,7 +73,8 @@
           <label for="convergence">Convergence</label>
           <input type="number" id="convergence" min="0.1" max="10" step="0.1" value="1.0">
         </div>
-        <button id="analyze-btn" type="button" class="primary-btn" aria-label="Analyze the selected image" aria-busy="false">
+        <button id="analyze-btn" type="button" class="primary-btn" aria-label="Analyze the selected image"
+          aria-busy="false">
           <span id="btn-label">Analyze</span>
           <span id="btn-spinner" class="btn-spinner hidden" aria-hidden="true"></span>
         </button>
@@ -140,4 +150,5 @@
   </div>
   <script type="module" src="./main.js"></script>
 </body>
+
 </html>

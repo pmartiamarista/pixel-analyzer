@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.1.10]
+
+### Added
+- [test]: implement comprehensive integration suite with 23 new tests across all modules (`sampler`, `accessibility`, `metrics`, `report`, `kmeans`, `decoder`, `color`)
+- [doc]: add **Test Coverage Policy** to `docs/DETA.md §6` targeting ≥ 90% module coverage
+- [doc]: updated `docs/DETA.md` to formally allow JSDoc in `src/bindings.ts` (API contract) while enforcing zero-comments for Rust source
+
+### Fixed
+- [fix]: implement pixel-scanning in `src/decoder.rs` for JPEG format to correctly detect grayscale images (prevents `zune-jpeg` RGB expansion from masking grayscale status)
+- [fix]: renumber `docs/DETA.md` sections to resolve hierarchy gaps (Bibliography §8 -> §7, then §7 -> §8 with new policy)
+
 ## [0.1.9]
 
 ### Added

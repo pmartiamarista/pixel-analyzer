@@ -101,3 +101,63 @@ fn report_accent_present_for_contrasting_input() {
     );
     assert!(report.main.accent.is_some());
 }
+
+#[test]
+fn report_background_suggestion_darkens_for_light_dominant() {
+    let clusters = mock_clusters(80.0, 0.0);
+    let (rgb, lab) = mock_pixels();
+    let report = report::build(
+        report::ReportInputs {
+            clusters: &clusters,
+            rgb_pixels: &rgb,
+            lab_pixels: &lab,
+            width: 1,
+            height: 2,
+        },
+        0.0,
+        None,
+    );
+    assert_eq!(report.main.background_suggestion.len(), 7);
+    assert!(report.main.background_suggestion.starts_with('#'));
+}
+
+#[test]
+fn report_merges_decoder_and_accent_warnings() {
+    let clusters = mock_clusters(50.0, 51.0);
+    let (rgb, lab) = mock_pixels();
+    let report = report::build(
+        report::ReportInputs {
+            clusters: &clusters,
+            rgb_pixels: &rgb,
+            lab_pixels: &lab,
+            width: 1,
+            height: 2,
+        },
+        0.0,
+        Some("Decoder warning".to_string()),
+    );
+    assert!(report.warning.is_some());
+    let w = report.warning.unwrap();
+    assert!(w.contains("Decoder warning"));
+    assert!(w.contains("No perceptually distinct accent colour"));
+}
+
+#[test]
+fn report_no_accent_warning_contains_expected_message() {
+    let clusters = mock_clusters(50.0, 51.0);
+    let (rgb, lab) = mock_pixels();
+    let report = report::build(
+        report::ReportInputs {
+            clusters: &clusters,
+            rgb_pixels: &rgb,
+            lab_pixels: &lab,
+            width: 1,
+            height: 2,
+        },
+        0.0,
+        None,
+    );
+    assert!(report.warning.is_some());
+    let w = report.warning.unwrap();
+    assert!(w.contains("No perceptually distinct accent colour found"));
+}

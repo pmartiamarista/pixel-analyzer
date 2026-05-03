@@ -1,6 +1,6 @@
 use pixel_analyzer::color;
 use pixel_analyzer::color_theory;
-use pixel_analyzer::types::{LchColor, RgbColor};
+use pixel_analyzer::types::{LabColor, LchColor, RgbColor};
 
 #[test]
 fn rgb_to_lab_black_is_zero_luminance() {
@@ -128,4 +128,29 @@ fn rgb_color_from_hex_edge_cases() {
 
     let c = RgbColor::from_hex("#GGGGGG");
     assert_eq!(c, RgbColor { r: 0, g: 0, b: 0 });
+}
+
+#[test]
+fn relative_luminance_mid_grey_is_correct() {
+    let grey = RgbColor {
+        r: 128,
+        g: 128,
+        b: 128,
+    };
+    let lum = color::relative_luminance(grey);
+    assert!((lum - 0.2158605).abs() < 0.05);
+}
+
+#[test]
+fn lch_to_lab_round_trip_within_tolerance() {
+    let lab = LabColor {
+        l: 50.0,
+        a: 10.0,
+        b: -10.0,
+    };
+    let lch = color::lab_to_lch(lab);
+    let recovered_lab = color::lch_to_lab(lch);
+    assert!((lab.l - recovered_lab.l).abs() < 0.01);
+    assert!((lab.a - recovered_lab.a).abs() < 0.01);
+    assert!((lab.b - recovered_lab.b).abs() < 0.01);
 }

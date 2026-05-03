@@ -91,8 +91,11 @@ fn decode_jpeg(bytes: &[u8]) -> Result<(Vec<u8>, u32, u32, Option<String>), Anal
         .len()
         .checked_div(pixel_count)
         .ok_or_else(|| AnalyzerError::DecodingFailed("JPEG has zero dimensions".to_string()))?;
-    let is_grey = bytes_per_pixel == 1;
     let rgba = to_rgba(pixels, bytes_per_pixel)?;
+    let is_grey = rgba
+        .chunks_exact(4)
+        .take(1024)
+        .all(|c| c[0] == c[1] && c[1] == c[2]);
     let warning =
         is_grey.then(|| "Image is greyscale; colour palette will be achromatic.".to_string());
     Ok((rgba, info.width as u32, info.height as u32, warning))

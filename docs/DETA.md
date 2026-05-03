@@ -18,7 +18,7 @@ The following rules are the canonical engineering standards for this project.
 - Favor composition over inheritance; depend on abstractions/traits at module boundaries.
 
 ### 1.2 Code Quality & Formatting
-- **Zero comments**: No inline, block, line, or doc comments (`//`, `/* */`, `///`). Clarity must come from naming and structure.
+- **Zero comments**: No inline, block, line, or doc comments (`//`, `/* */`, `///`). Clarity must come from naming and structure. (Exception: `src/bindings.ts` is a public API declaration file; JSDoc (`/** */`) is required on all exported members.)
 - No file headers describing file name or purpose. No `TODO`, `FIXME`, or commented-out code.
 - **Naming**: Explain intent. No abbreviations, no generic suffixes like `data`/`info`/`util`.
 - **Structure**: Max 300 lines per file. Max 40 lines per function. Max 4 parameters per function.
@@ -124,7 +124,7 @@ Rules defined in Section 12 of the core engineering rules are applied here.
 
 ## 4. Documentation Policy
 - All API documentation lives in `docs/API.md` and `docs/DETA.md`. No inline documentation in `src/`.
-- `//`, `/* */`, and `///` are all banned in `src/`.
+- `//`, `/* */`, and `///` are all banned in `src/` (Exception: JSDoc `/** */` in `src/bindings.ts`).
 - Names and structure must be self-explanatory without comments.
 
 ---
@@ -138,12 +138,25 @@ Rules defined in Section 12 of the core engineering rules are applied here.
 
 ---
 
-## 6. Project Identity
+## 6. Test Coverage Policy
 
-### 6.1 Mission
+- Target: ≥ 90% per module on `cargo test` (native target).
+- 100% is explicitly not targeted. Structural reasons:
+  - `lib.rs` WASM-only path is covered by `make test-wasm` (`wasm-pack test --node`), not `cargo test`.
+  - Unreachable defensive branches (e.g., `expand_to_rgba` Indexed arm) are not tested.
+  - Test-only production code paths are banned (Rule §1.5).
+- All tests live in `tests/`. No `#[cfg(test)]` in `src/`.
+- Every public function must have ≥ 1 happy path and ≥ 1 edge case test (Rule §1.5).
+- The full coverage improvement plan and test specifications live in the analysis report.
+
+---
+
+## 7. Project Identity
+
+### 7.1 Mission
 > To provide a zero-dependency, memory-safe WASM core that extracts perceptually accurate chromatic intelligence and accessibility metrics from images in any JavaScript environment.
 
-### 6.2 Vision
+### 7.2 Vision
 > To become the definitive standard for browser-side visual analysis by merging academic color science with high-performance systems engineering.
 
 ---

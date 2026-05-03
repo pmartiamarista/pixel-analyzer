@@ -113,3 +113,75 @@ fn classify_hue_group_neutral() {
         pixel_analyzer::types::HueGroup::Neutral
     );
 }
+
+#[test]
+fn classify_hue_boundary_70_is_neutral_not_warm() {
+    let stats = metrics::compute(metrics::MetricsInputs {
+        rgb_pixels: &[],
+        lab_pixels: &[],
+        dominant_hue: 70.0,
+        width: 10,
+        height: 10,
+    });
+    assert_eq!(
+        stats.dominant_hue_group,
+        pixel_analyzer::types::HueGroup::Neutral
+    );
+}
+
+#[test]
+fn classify_hue_boundary_150_is_cool() {
+    let stats = metrics::compute(metrics::MetricsInputs {
+        rgb_pixels: &[],
+        lab_pixels: &[],
+        dominant_hue: 150.0,
+        width: 10,
+        height: 10,
+    });
+    assert_eq!(
+        stats.dominant_hue_group,
+        pixel_analyzer::types::HueGroup::Cool
+    );
+}
+
+#[test]
+fn orientation_square_image() {
+    let stats = metrics::compute(metrics::MetricsInputs {
+        rgb_pixels: &[],
+        lab_pixels: &[],
+        dominant_hue: 0.0,
+        width: 100,
+        height: 100,
+    });
+    assert!(matches!(
+        stats.orientation,
+        pixel_analyzer::types::Orientation::Square
+    ));
+}
+
+#[test]
+fn orientation_portrait_image() {
+    let stats = metrics::compute(metrics::MetricsInputs {
+        rgb_pixels: &[],
+        lab_pixels: &[],
+        dominant_hue: 0.0,
+        width: 50,
+        height: 100,
+    });
+    assert!(matches!(
+        stats.orientation,
+        pixel_analyzer::types::Orientation::Portrait
+    ));
+}
+
+#[test]
+fn brightness_zero_for_empty_pixel_slice() {
+    let stats = metrics::compute(metrics::MetricsInputs {
+        rgb_pixels: &[],
+        lab_pixels: &[],
+        dominant_hue: 0.0,
+        width: 10,
+        height: 10,
+    });
+    assert_eq!(stats.brightness, 0.0);
+}

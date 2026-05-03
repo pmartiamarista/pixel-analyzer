@@ -110,7 +110,7 @@ jobs:
   deploy-pages:
     name: Deploy Demo to GitHub Pages
     if: github.ref == 'refs/heads/main'
-    needs: [build-wasm]
+    needs: [quality, test, build-wasm]
     runs-on: ubuntu-latest
     environment:
       name: github-pages
