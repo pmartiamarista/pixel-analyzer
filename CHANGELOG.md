@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.1.11]
+
+### Added
+- [feat]: add full APCA-W3 Bronze tier coverage to `ApcaReport`: `passes_preferred` (|Lc| ≥ 90), `passes_decorative` (|Lc| ≥ 30), `passes_visibility` (|Lc| ≥ 15) (`src/accessibility.rs`, `src/bindings.ts`)
+- [feat]: add `is_normal_polarity` to `ApcaReport`; explicit dark-on-light flag
+- [feat]: add `is_aa_large`, `is_aaa_large` to `AccessibilityReport` for SC 1.4.3/1.4.6 large-text thresholds (≥ 3.0:1 / ≥ 4.5:1)
+- [feat]: add `is_aa_ui` to `AccessibilityReport` for SC 1.4.11 non-text contrast (≥ 3.0:1)
+
+### Documentation
+- [doc]: update `docs/DETA.md` §2.1, §2.2, §3, §8 to reflect APCA-W3 and WCAG 2.2
+- [doc]: update `docs/API.md` with complete ApcaReport field table (8 fields, 6 tiers)
+
+### Tests
+- [test]: add 14 tests covering all new WCAG and APCA fields
 ## [0.1.10]
 
 ### Added

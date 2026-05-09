@@ -86,7 +86,7 @@ Rules defined in Section 12 of the core engineering rules are applied here.
 | `color.rs` | Perceptual space transformations (sRGB → XYZ → Lab → LCh) |
 | `kmeans.rs` | K-Means++ clustering engine with ΔE convergence |
 | `report.rs` | Assembly of the final `AnalysisReport` |
-| `accessibility.rs` | WCAG 2.1 contrast ratio evaluation |
+| `accessibility.rs` | WCAG 2.1/2.2 contrast ratio and APCA-W3 evaluation |
 | `metrics.rs` | Hasler-Suesstrunk colorfulness and Shannon entropy |
 | `color_theory.rs` | Hue group classification and harmony generation |
 
@@ -96,7 +96,7 @@ Rules defined in Section 12 of the core engineering rules are applied here.
   → `spatial downsample (32×32 stratified grid)`
   → `K-Means++ clustering (ΔE convergence)`
   → `palette assembly + accent selection`
-  → `WCAG contrast + font color recommendation`
+  → `WCAG 2.1/2.2 contrast + APCA-W3 Lc calculation + font color recommendation`
   → `report serialisation` → `JsValue`
 
 ---
@@ -119,6 +119,30 @@ Rules defined in Section 12 of the core engineering rules are applied here.
 | `accent` | `Option<ColorEntry>` | `ColorEntry \| null` | Yes |
 | `background_suggestion` | `String` | `string` | No |
 | `foreground_suggestion` | `String` | `string` | No |
+
+### `AccessibilityReport`
+| Rust field | Rust type | TypeScript type | Nullable |
+|---|---|---|---|
+| `contrast_ratio` | `f32` | `number` | No |
+| `is_aa_normal` | `bool` | `boolean` | No |
+| `is_aaa_normal` | `bool` | `boolean` | No |
+| `is_aa_large` | `bool` | `boolean` | No |
+| `is_aaa_large` | `bool` | `boolean` | No |
+| `is_aa_ui` | `bool` | `boolean` | No |
+| `recommended_font_color` | `String` | `string` | No |
+| `apca` | `ApcaReport` | `ApcaReport` | No |
+
+### `ApcaReport`
+| Rust field | Rust type | TypeScript type | Nullable |
+|---|---|---|---|
+| `lc` | `f32` | `number` | No |
+| `is_normal_polarity` | `bool` | `boolean` | No |
+| `passes_preferred` | `bool` | `boolean` | No |
+| `passes_body_text` | `bool` | `boolean` | No |
+| `passes_large_text` | `bool` | `boolean` | No |
+| `passes_ui_component` | `bool` | `boolean` | No |
+| `passes_decorative` | `bool` | `boolean` | No |
+| `passes_visibility` | `bool` | `boolean` | No |
 
 ---
 
@@ -166,5 +190,7 @@ Rules defined in Section 12 of the core engineering rules are applied here.
 1. CIE (1976). *Colorimetry*, Publication 15.2. Bureau Central de la CIE, Vienna.
 2. Arthur, D., & Vassilvitskii, S. (2007). "k-means++: The advantages of careful seeding". *Proc. ACM-SIAM SODA*.
 3. W3C (2018). *Web Content Accessibility Guidelines (WCAG) 2.1*. W3C Recommendation.
-4. Hasler, D., & Suesstrunk, S. E. (2003). "Measuring colorfulness in natural images". *IS&T/SPIE Electronic Imaging*.
-5. Fitzgerald, A. et al. (2019–2025). *wasm-bindgen*. Rust and WebAssembly Working Group.
+4. W3C (2023). *WCAG 2.2*. W3C Recommendation.
+5. Hasler, D., & Suesstrunk, S. E. (2003). "Measuring colorfulness in natural images". *IS&T/SPIE Electronic Imaging*.
+6. Myndex Research (2022–2024). *APCA-W3 0.0.98G-4g*.
+7. Fitzgerald, A. et al. (2019–2025). *wasm-bindgen*. Rust and WebAssembly Working Group.
