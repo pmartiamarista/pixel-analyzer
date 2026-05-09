@@ -1,4 +1,6 @@
 import { defineConfig } from 'vite';
+import wasm from 'vite-plugin-wasm';
+import topLevelAwait from 'vite-plugin-top-level-await';
 
 const crossOriginHeaders = {
   'Cross-Origin-Opener-Policy': 'same-origin',
@@ -6,6 +8,7 @@ const crossOriginHeaders = {
 };
 
 export default defineConfig({
+  plugins: [wasm(), topLevelAwait()],
   base: '/pixel-analyzer/',
 
   server: {

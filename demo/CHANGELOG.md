@@ -1,5 +1,21 @@
 # Changelog — pixel-analyzer Demo
 
+## [0.0.3]
+
+### Added
+- [feat]: integrate APCA-W3 contrast calculations and display (Lc value, Dark/Light polarity)
+- [feat]: implement comprehensive APCA compliance matrix (Preferred, Body, Large, UI/Icons, Decorative, Visibility)
+- [feat]: include WCAG 2.1 UI/Icon component checks in accessibility panel
+- [feat]: show recommended fallback font color chip in legibility preview
+
+### Fixed
+- [fix]: update `pixel-analyzer` WASM import to correctly destructure `init`
+- [fix]: restrict image loading and file inputs to supported formats (JPEG, PNG, WebP)
+
+### Infrastructure
+- [infra]: add `vite-plugin-wasm` and `vite-plugin-top-level-await` to Vite config for robust WASM loading
+- [infra]: add `demo/package-lock.json` to project root `.gitignore`
+
 ## [0.0.2]
 
 ### Added

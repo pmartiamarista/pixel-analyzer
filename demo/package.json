@@ -1,7 +1,7 @@
 {
   "name": "pixel-analyzer-demo",
   "private": true,
-  "version": "0.0.2",
+  "version": "0.0.3",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -13,6 +13,10 @@
     "vite": "8.0.10"
   },
   "dependencies": {
-    "pixel-analyzer": "file:../pkg"
+    "pixel-analyzer": "file:../pkg",
+    "rollup": "^4.60.3",
+    "top-level-await": "^1.1.0",
+    "vite-plugin-top-level-await": "^1.6.0",
+    "vite-plugin-wasm": "^3.6.0"
   }
 }

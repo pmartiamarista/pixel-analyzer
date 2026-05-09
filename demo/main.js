@@ -1,4 +1,4 @@
-import init, { analyze, AnalysisOptions } from 'pixel-analyzer';
+import { init, analyze, AnalysisOptions } from 'pixel-analyzer';
 
 const tabBtns       = document.querySelectorAll('.tab-btn');
 const panels        = document.querySelectorAll('.upload-zone');
@@ -100,6 +100,11 @@ function setupEventListeners() {
 }
 
 async function handleFile(file) {
+    const supportedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!supportedTypes.includes(file.type)) {
+        setStatus('Unsupported format. Please use JPEG, PNG, or WebP.', 'error');
+        return;
+    }
     const objectUrl = URL.createObjectURL(file);
     imagePreview.src = objectUrl;
     imagePreview.onload = () => URL.revokeObjectURL(objectUrl);
@@ -121,6 +126,13 @@ async function handleUrl(url) {
     setStatus('Fetching image…', '');
     try {
         const blob = await (await fetch(url)).blob();
+        const supportedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+        if (!supportedTypes.includes(blob.type)) {
+            setStatus('Unsupported format. Please use JPEG, PNG, or WebP.', 'error');
+            urlInput.setAttribute('aria-invalid', 'true');
+            urlInput.setAttribute('aria-describedby', 'global-status');
+            return;
+        }
         const objectUrl = URL.createObjectURL(blob);
         imagePreview.src = objectUrl;
         imagePreview.onload = () => URL.revokeObjectURL(objectUrl);
@@ -229,54 +241,88 @@ function renderReport(report) {
 }
 
 function renderAccessibility(report) {
-    const ratio = report.accessibility.contrast_ratio;
-    const levels = [
-        { label: 'AA',  size: 'Normal', threshold: 4.5 },
-        { label: 'AA',  size: 'Large',  threshold: 3.0, footnote: '18pt+' },
-        { label: 'AAA', size: 'Normal', threshold: 7.0 },
-        { label: 'AAA', size: 'Large',  threshold: 4.5, footnote: '18pt+' },
+    const acc = report.accessibility;
+    const apca = acc.apca;
+
+    const wcagLevels = [
+        { label: 'AA',  size: 'Normal', pass: acc.is_aa_normal },
+        { label: 'AAA', size: 'Normal', pass: acc.is_aaa_normal },
+        { label: 'AA',  size: 'Large',  pass: acc.is_aa_large, footnote: '18pt+' },
+        { label: 'AAA', size: 'Large',  pass: acc.is_aaa_large, footnote: '18pt+' },
+        { label: 'AA',  size: 'UI/Icon',pass: acc.is_aa_ui }
     ];
 
     const domHex = report.main.dominant.hex;
-    const textHex = report.main.accent ? report.main.accent.hex : report.accessibility.recommended_font_color;
+    const textHex = report.main.accent ? report.main.accent.hex : acc.recommended_font_color;
 
-    let gridHtml = '';
-    levels.forEach(level => {
-        const pass = ratio >= level.threshold;
-        const statusText = pass ? '✓ Pass' : '✗ Fail';
-        const ariaLabel = `WCAG ${level.label} ${level.size}: ${pass ? 'Pass' : 'Fail'}`;
+    let wcagHtml = '';
+    wcagLevels.forEach(level => {
+        const statusText = level.pass ? '✓ Pass' : '✗ Fail';
+        const ariaLabel = `WCAG ${level.label} ${level.size}: ${level.pass ? 'Pass' : 'Fail'}`;
         
-        gridHtml += `
-            <div class="wcag-item ${pass ? 'pass' : 'fail'}" role="listitem" aria-label="${ariaLabel}">
+        wcagHtml += `
+            <div class="wcag-item ${level.pass ? 'pass' : 'fail'}" role="listitem" aria-label="${ariaLabel}">
                 <div class="wcag-level">
                     ${level.label} ${level.size}
-                    <span class="wcag-threshold">≥ ${level.threshold.toFixed(1)}${level.footnote ? `, ${level.footnote}` : ''}</span>
+                    ${level.footnote ? `<span class="wcag-threshold">${level.footnote}</span>` : ''}
                 </div>
-                <span class="wcag-status ${pass ? 'pass' : 'fail'}">${statusText}</span>
+                <span class="wcag-status ${level.pass ? 'pass' : 'fail'}">${statusText}</span>
+            </div>
+        `;
+    });
+
+    const apcaLevels = [
+        { label: 'Preferred', desc: 'Fluent text', pass: apca.passes_preferred },
+        { label: 'Body',      desc: 'Normal text', pass: apca.passes_body_text },
+        { label: 'Large',     desc: '18pt+ / Bold', pass: apca.passes_large_text },
+        { label: 'UI/Icons',  desc: 'Active elements', pass: apca.passes_ui_component },
+        { label: 'Decorative',desc: 'Inactive elements', pass: apca.passes_decorative },
+        { label: 'Visibility',desc: 'Perceptually present', pass: apca.passes_visibility }
+    ];
+
+    let apcaHtml = '';
+    apcaLevels.forEach(level => {
+        const statusText = level.pass ? '✓ Pass' : '✗ Fail';
+        apcaHtml += `
+            <div class="wcag-item ${level.pass ? 'pass' : 'fail'}" role="listitem">
+                <div class="wcag-level">
+                    ${level.label}
+                    <span class="wcag-threshold">${level.desc}</span>
+                </div>
+                <span class="wcag-status ${level.pass ? 'pass' : 'fail'}">${statusText}</span>
             </div>
         `;
     });
 
     accessibilityInfo.innerHTML = `
         <div class="accessibility-report-grid">
-            <div class="contrast-summary">
+            <div class="contrast-summary" style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
                 <div class="contrast-value">
-                    <span class="contrast-number">${ratio.toFixed(2)}</span>
-                    <span class="contrast-ratio-label">:1 Contrast</span>
+                    <span class="contrast-number">${acc.contrast_ratio.toFixed(2)}</span>
+                    <span class="contrast-ratio-label">:1 WCAG</span>
                 </div>
-                ${colorChip(report.accessibility.recommended_font_color)}
+                <div class="contrast-value" style="text-align:right">
+                    <span class="contrast-number">Lc ${apca.lc.toFixed(1)}</span>
+                    <span class="contrast-ratio-label">${apca.is_normal_polarity ? 'Dark on Light' : 'Light on Dark'}</span>
+                </div>
             </div>
 
+            <p class="card-label" style="margin-bottom:0">WCAG 2.1</p>
             <div class="wcag-grid" role="list" aria-label="WCAG 2.1 Compliance Matrix">
-                ${gridHtml}
+                ${wcagHtml}
+            </div>
+
+            <p class="card-label" style="margin-bottom:0; margin-top:0.5rem">APCA-W3</p>
+            <div class="wcag-grid" role="list" aria-label="APCA Compliance Matrix">
+                ${apcaHtml}
             </div>
 
             <div class="legibility-preview" style="background-color: ${domHex}; color: ${textHex}" aria-label="Legibility preview using dominant and accent colors">
                 <span class="preview-tag">Legibility Preview</span>
                 <p class="preview-text-large">Heavy Heading</p>
                 <p class="preview-text-normal">Standard body text for UI elements.</p>
-                <small class="wcag-note" aria-label="WCAG Large Text definition">
-                    WCAG Large Text: ≥ 18pt (24px) or ≥ 14pt bold
+                <small class="wcag-note" aria-label="Fallback font color">
+                    Recommended fallback font color: ${colorChip(acc.recommended_font_color)}
                 </small>
             </div>
         </div>
