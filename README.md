@@ -4,7 +4,7 @@ WASM library that extracts color palettes, WCAG contrast ratios, and colorfulnes
 ## Quick Start
 
 ```ts
-import init, { analyze } from './pkg/pixel_analyzer.js';
+import { init, analyze } from 'pixel-analyzer';
 
 async function run() {
     await init();

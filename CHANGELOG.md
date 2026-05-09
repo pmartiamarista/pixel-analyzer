@@ -14,6 +14,9 @@
 
 ### Tests
 - [test]: add 14 tests covering all new WCAG and APCA fields
+
+### Fixed
+- [fix]: update `init` export signature in documentation and demo; `--target bundler` (introduced in v0.1.10) requires a named export (`import { init }`) rather than a default export
 ## [0.1.10]
 
 ### Added

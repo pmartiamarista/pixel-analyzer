@@ -15,7 +15,7 @@ The mandatory call order is:
 Calling `analyze()` before `init()` throws `Error: WASM module not initialized`.
 
 ```ts
-import init, { analyze, AnalysisOptions } from 'pixel-analyzer';
+import { init, analyze, AnalysisOptions } from 'pixel-analyzer';
 
 await init();
 const bytes = new Uint8Array(await (await fetch('image.jpg')).arrayBuffer());
